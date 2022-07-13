@@ -123,13 +123,7 @@ export default class AppConfigLoader {
         }
 
         try {
-            const cqsupport = `
-                ${CQ_SERVER_ALIAS}=${serverAlias}
-                ${CQ_SERVER_URL}=${serverUrl}
-                ${CQ_SERVER_AUTH}=${auth}
-                ${CQ_SERVER_USER}=${username}
-                ${CQ_SERVER_PWD}=${password}
-            `
+            const cqsupport = `${CQ_SERVER_ALIAS}=${serverAlias}\n${CQ_SERVER_URL}=${serverUrl}\n${CQ_SERVER_AUTH}=${auth}\n${CQ_SERVER_USER}=${username}\n${CQ_SERVER_PWD}=${password}`
             fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, cqsupport);
         } catch (e) {
             console.error(chalk.red(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`));
