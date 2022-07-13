@@ -1,12 +1,14 @@
 import { Command } from "commander"
-import { Server } from "../../authentication/server-authentication"
-import { CONFIG_FILE } from '../../constants/config'
+import { Authentication, Server, ServerInfo } from "./authentication/server-authentication"
+import { CONFIG_FILE } from './constants'
 import BaseCommand from "../base-command"
 import os from 'os'
 import fs from 'fs'
 import path from 'node:path'
 import chalk from "chalk"
-import CredentialLoader from "./credential-loader"
+import CredentialLoader from "./appconfig-loader"
+import { Table } from 'console-table-printer'
+import AppConfigLoader from "./appconfig-loader"
 
 interface IAppConfig {
     server: Server
@@ -16,40 +18,38 @@ export default class AppConfig implements BaseCommand<IAppConfig> {
 
     name: string = 'config'
 
-    run(args: IAppConfig, cmd: string): void {
-        switch (cmd) {
-            case 'init':
-                this.doInit(args, cmd)
-                break
-            case 'show':
-                this.doShow(args, cmd)
-                break
-            default:
-                throw new Error(`Unspecified command provided to the config program - ${cmd}`)
-        }
-    }
-
     parse(): Command {
-        const program = new Command(this.name)
+        const program = new Command(this.name).alias('c')
         program
             .command('init')
             .alias('i')
-            .action((args: IAppConfig) => {
-                this.run(args, 'init')
+            .action(() => {
+                this.doInit()
             })
 
         program
-            .command('show')
-            .alias('s')
-            .action((args: IAppConfig) => {
-                this.run(args, 'show')
+            .command('view')
+            .alias('v')
+            .action(() => {
+                this.doShow()
             })
 
         //TODO implement a way to setup the .cqsupport file
+        program
+            .command('set-basic')
+            .alias('sb')
+            .argument('<serverUrl>', 'Server URL must be fully qualified i.e. https://abc.com:8181')
+            .argument('<serverAlias>', 'A unique name to identify this server')
+            .argument('<username>', 'The username of the user we want to authenticate with')
+            .argument('<password>', 'The username of the user we want to authenticate with')
+            .action((serverUrl: string, serverAlias: string, username: string, password: string) => {
+                this.doSet(serverUrl, serverAlias, username, password)
+            })
+
         return program
     }
 
-    doInit = (args: IAppConfig, cmd: string) => {
+    doInit = () => {
         const homedir = os.homedir()
         if (!fs.existsSync(`${homedir}${path.sep}${CONFIG_FILE}`)) {
             fs.closeSync(fs.openSync(`${homedir}${path.sep}${CONFIG_FILE}`, 'w'))
@@ -59,8 +59,20 @@ export default class AppConfig implements BaseCommand<IAppConfig> {
         }
     }
 
-    doShow = (args: IAppConfig, cmd: string) => {
-        console.log(chalk.green(`The credentials are being loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]`))
+    doShow = () => {
+        const table: Table = new Table({title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]`})
+        const server: ServerInfo = CredentialLoader.get().get()
+        for (let key of Object.keys(server)) {
+            let value = server[key as keyof ServerInfo]
+            table.addRow({'key': key}, {color: 'green'})
+            table.addRow({ 'value': value }, {color: 'yellow'})
+        }
+        
+        table.printTable()
+    }
+
+    doSet = (serverUrl: string, serverAlias: string, username: string, password: string) => {
+        AppConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
     }
 
 }

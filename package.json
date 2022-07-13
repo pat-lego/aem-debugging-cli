@@ -10,7 +10,6 @@
     "test": "jest",
     "docs": "jsdoc dist/**",
     "lint": "eslint src/**/*.ts",
-    "build:commonjs": "tsc --module commonjs --outDir dist/commonjs",
     "build:esm": "tsc --module es2022 --target es6 --outDir dist/esm",
     "build:esm:watch": "tsc --watch --module es2022 --target es6 --outDir dist/esm"
   },
@@ -40,6 +39,7 @@
   "dependencies": {
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
+    "console-table-printer": "^2.11.0",
     "eslint": "^8.19.0",
     "properties-file": "^2.0.5",
     "typescript": "^4.7.4"

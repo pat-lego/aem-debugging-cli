@@ -38,11 +38,13 @@ export interface Server {
     /**
      * Returns the server information
      */
-    get(): {
-        serverAlias: string,
-        serverUrl: string
-        auth: string,
-        type: Authentication
-    }
+    get(): ServerInfo
 
+}
+
+export interface ServerInfo {
+    serverAlias: string,
+    serverUrl: string
+    auth: string,
+    type: Authentication
 }
