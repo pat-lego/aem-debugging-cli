@@ -8,7 +8,6 @@
   "exports": "./dist/esm/main.js",
   "scripts": {
     "test": "jest",
-    "docs": "jsdoc dist/**",
     "lint": "eslint src/**/*.ts",
     "build:esm": "tsc --module es2022 --target es6 --outDir dist/esm",
     "build:esm:watch": "tsc --watch --module es2022 --target es6 --outDir dist/esm"
@@ -33,7 +32,6 @@
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "jest": "^28.1.2",
-    "jsdoc": "^3.6.10",
     "ts-jest": "^28.0.5"
   },
   "dependencies": {

@@ -18,3 +18,7 @@ A utility used to debug AEM
 # How to enable watch
 
 - npm run build:esm:watch
+
+# How to run 
+
+- node dist/esm/main.js
