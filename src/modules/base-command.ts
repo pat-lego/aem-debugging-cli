@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 
-export default interface BaseCommand<T> {
+export default interface BaseCommand {
     /**
      * The name of the command
      */

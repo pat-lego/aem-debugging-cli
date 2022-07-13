@@ -15,7 +15,7 @@ interface IAppConfig {
     server: Server
 }
 
-export default class AppConfig implements BaseCommand<IAppConfig> {
+export default class AppConfig implements BaseCommand {
 
     name: string = 'config'
 

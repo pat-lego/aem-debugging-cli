@@ -6,7 +6,7 @@ export interface IRequestLog {
     requestLog: String
 }
 
-export default class RequestLog implements BaseCommand<IRequestLog> {
+export default class RequestLog implements BaseCommand {
     name: string = 'rlog'
 
     parse(): Command {
