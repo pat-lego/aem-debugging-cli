@@ -1,5 +1,5 @@
-import BasicCredentials from '../../src/authentication/basic-credentials'
-import { Credentials } from '../../src/authentication/server-authentication'
+import BasicCredentials from '../../src/modules/config/authentication/basic-credentials'
+import { Credentials } from '../../src/modules/config/authentication/server-authentication'
 
 describe('Test Basic Auth', () => {
     test('get base64 encoded credentials', () => {

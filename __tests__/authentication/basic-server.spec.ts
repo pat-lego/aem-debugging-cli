@@ -1,6 +1,6 @@
-import BasicCredentials from '../../src/authentication/basic-credentials'
-import BasicServer from '../../src/authentication/basic-server'
-import { Credentials, Server } from '../../src/authentication/server-authentication'
+import BasicCredentials from '../../src/modules/config/authentication/basic-credentials'
+import BasicServer from '../../src/modules/config/authentication/basic-server'
+import { Credentials, Server } from '../../src/modules/config/authentication/server-authentication'
 
 describe('Test Basic Server', () => {
     test('Test Getting Server', () => {
