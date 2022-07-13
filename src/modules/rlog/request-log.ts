@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import BaseCommand from '../base-command.js'
+import BaseCommand from '../base-command'
 
 export interface IRequestLog {
     top: Number,

@@ -1,5 +1,5 @@
-import AppConfig from "./modules/config/app-config.js"
-import RequestLog from "./modules/rlog/request-log.js"
+import AppConfig from "./modules/config/app-config"
+import RequestLog from "./modules/rlog/request-log"
 
 const Commmands = [new RequestLog(), new AppConfig()]
 

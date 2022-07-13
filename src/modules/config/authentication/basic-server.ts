@@ -1,4 +1,4 @@
-import { Credentials, Server, ServerInfo } from './server-authentication.js'
+import { Credentials, Server, ServerInfo } from './server-authentication'
 
 export default class BasicServer implements Server {
 

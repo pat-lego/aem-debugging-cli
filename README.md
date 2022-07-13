@@ -21,4 +21,4 @@ A utility used to debug AEM
 
 # How to run 
 
-- node dist/esm/main.js
+- node --experimental-specifier-resolution=node dist/esm/main.js
