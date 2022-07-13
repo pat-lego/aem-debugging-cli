@@ -1,4 +1,4 @@
-import { createReadStream } from 'fs';
+import { createReadStream } from 'fs'
 import * as https from 'https'
 import * as http from 'http'
 import * as readline from 'readline' 

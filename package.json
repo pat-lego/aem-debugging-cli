@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "module": "es2020",
   "main": "dist/main.js",
   "exports": "./dist/esm/main.js",
   "scripts": {
     "test": "jest",
     "docs": "jsdoc dist/**",
     "lint": "eslint src/**/*.ts",
-    "build:commonsjs": "tsc --outDir dist/commonjs",
-    "build:esm": "tsc --module es2020 --target es6 --outDir dist/esm"
+    "build:commonjs": "tsc --module commonjs --outDir dist/commonjs",
+    "build:esm": "tsc --module es2022 --target es6 --outDir dist/esm",
+    "build:esm:watch": "tsc --watch --module es2022 --target es6 --outDir dist/esm"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
     "eslint": "^8.19.0",
+    "properties-file": "^2.0.5",
     "typescript": "^4.7.4"
   }
 }

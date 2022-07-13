@@ -1,4 +1,3 @@
-import BasicCredentials from './basic-credentials';
 import { Authentication, Credentials, Server } from './server-authentication'
 
 export default class BasicServer implements Server {
@@ -13,7 +12,7 @@ export default class BasicServer implements Server {
         this._serverUrl = serverUrl
     }
 
-    get(): { serverAlias: string; serverUrl: string; auth: string; type: Authentication } {
+    get(): { serverAlias: string, serverUrl: string, auth: string, type: Authentication } {
         if (this._serverAlias && this._serverUrl) {
             return {
                 serverAlias: this._serverAlias,

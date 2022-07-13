@@ -21,4 +21,4 @@ const LOG_INCOMING_REQUEST = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[
 // eslint-disable-next-line no-useless-escape
 const LOG_OUTGOING_REQUEST = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\s(\*INFO\*|\*WARN\*|\*ERROR\*)\s([[A-Za-z0-9-]+])\s([A-Za-z\.]+)\s([0-9]{2}\/[A-Za-z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}\s\+[0-9]{4})\s([[0-9]+])\s(\<\-)\s([0-9]{3})\s([A-Za-z0-9-/\.\?\:\&\=\;]+)\s([0-9]+ms)/
 
-export default { LOG_ERROR_PATTERN, LOG_INCOMING_REQUEST, LOG_OUTGOING_REQUEST }
+export { LOG_ERROR_PATTERN, LOG_INCOMING_REQUEST, LOG_OUTGOING_REQUEST }

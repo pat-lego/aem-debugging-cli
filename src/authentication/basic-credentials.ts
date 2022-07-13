@@ -1,4 +1,4 @@
-import { Authentication, Credentials } from "./server-authentication";
+import { Authentication, Credentials } from "./server-authentication"
 
 export default class BasicCredentials implements Credentials {
 
@@ -12,7 +12,7 @@ export default class BasicCredentials implements Credentials {
    
     get(): string {
         if (this._username && this._password) {
-            return Buffer.from(`${this._username}:${this._password}`, 'binary').toString('base64');
+            return Buffer.from(`${this._username}:${this._password}`, 'binary').toString('base64')
         }
 
         throw new Error("The username and password is missing")

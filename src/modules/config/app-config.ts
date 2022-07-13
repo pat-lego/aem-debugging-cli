@@ -1,10 +1,12 @@
-import { Command } from "commander";
-import { Server } from "../../authentication/server-authentication";
-import BaseCommand from "../base-command";
+import { Command } from "commander"
+import { Server } from "../../authentication/server-authentication"
+import { CONFIG_FILE } from '../../constants/config'
+import BaseCommand from "../base-command"
 import os from 'os'
 import fs from 'fs'
 import path from 'node:path'
-import chalk from "chalk";
+import chalk from "chalk"
+import CredentialLoader from "./credential-loader"
 
 interface IAppConfig {
     server: Server
@@ -13,12 +15,14 @@ interface IAppConfig {
 export default class AppConfig implements BaseCommand<IAppConfig> {
 
     name: string = 'config'
-    _configFile: string = ".cqsupport"
 
     run(args: IAppConfig, cmd: string): void {
         switch (cmd) {
             case 'init':
                 this.doInit(args, cmd)
+                break
+            case 'show':
+                this.doShow(args, cmd)
                 break
             default:
                 throw new Error(`Unspecified command provided to the config program - ${cmd}`)
@@ -34,7 +38,6 @@ export default class AppConfig implements BaseCommand<IAppConfig> {
                 this.run(args, 'init')
             })
 
-        // TODO implement show
         program
             .command('show')
             .alias('s')
@@ -48,11 +51,16 @@ export default class AppConfig implements BaseCommand<IAppConfig> {
 
     doInit = (args: IAppConfig, cmd: string) => {
         const homedir = os.homedir()
-        if (!fs.existsSync(`${homedir}${path.sep}${this._configFile}`)) {
-            fs.closeSync(fs.openSync(`${homedir}${path.sep}${this._configFile}`, 'w'))
+        if (!fs.existsSync(`${homedir}${path.sep}${CONFIG_FILE}`)) {
+            fs.closeSync(fs.openSync(`${homedir}${path.sep}${CONFIG_FILE}`, 'w'))
+            console.log(chalk.green(`The ${homedir}${path.sep}${CONFIG_FILE} has been successfully created`))
         } else {
-            console.log(chalk.yellow(`The ${homedir}${path.sep}${this._configFile} file already exists nothing to do`))
+            console.log(chalk.yellow(`The ${homedir}${path.sep}${CONFIG_FILE} file already exists nothing to do`))
         }
+    }
+
+    doShow = (args: IAppConfig, cmd: string) => {
+        console.log(chalk.green(`The credentials are being loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]`))
     }
 
 }

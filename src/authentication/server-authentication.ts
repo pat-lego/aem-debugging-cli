@@ -1,5 +1,5 @@
 export enum Authentication {
-    BASIC
+    BASIC = "BASIC"
 }
 
 export interface Credentials {

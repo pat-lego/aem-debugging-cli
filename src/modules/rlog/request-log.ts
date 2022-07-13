@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command } from 'commander'
 import BaseCommand from '../base-command'
 
 export interface IRequestLog {
@@ -7,7 +7,7 @@ export interface IRequestLog {
 }
 
 export default class RequestLog implements BaseCommand<IRequestLog> {
-    name: string = 'rlog';
+    name: string = 'rlog'
 
     parse(): Command {
         const program = new Command(this.name)
