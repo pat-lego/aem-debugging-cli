@@ -2,7 +2,7 @@
     "compileOnSave": true,
     "compilerOptions": {
       "target": "es6",
-      "module": "es2022",
+      "module": "commonjs",
       "esModuleInterop": true,
       "sourceMap": true,
       "strict": true,

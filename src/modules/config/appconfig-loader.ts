@@ -75,12 +75,12 @@ export default class AppConfigLoader {
     }
 
     private static hasLocalCQSupport(): boolean {
-        return fs.existsSync(`${AppConfigLoader.getdirname()}${path.sep}${CONFIG_FILE}`)
+        return fs.existsSync(`${__dirname}${path.sep}${CONFIG_FILE}`)
     }
 
     private static getLocalCQSupport(): PropertiesConfig {
         const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
-        const result: KeyValueObject = propertiesToJson(`${AppConfigLoader.getdirname()}${path.sep}${CONFIG_FILE}`)
+        const result: KeyValueObject = propertiesToJson(`${__dirname}${path.sep}${CONFIG_FILE}`)
 
         if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
             properties.CQ_SERVER_ALIAS = result[CQ_SERVER_ALIAS]
@@ -131,40 +131,35 @@ export default class AppConfigLoader {
     }
 
     private static hasEnvVariablesCQSupport(): boolean {
-    if (CQ_SERVER_URL in process.env && CQ_SERVER_ALIAS in process.env &&
-        CQ_SERVER_AUTH in process.env && CQ_SERVER_PWD in process.env && CQ_SERVER_USER in process.env) {
-        return true
+        if (CQ_SERVER_URL in process.env && CQ_SERVER_ALIAS in process.env &&
+            CQ_SERVER_AUTH in process.env && CQ_SERVER_PWD in process.env && CQ_SERVER_USER in process.env) {
+            return true
+        }
+        return false
     }
-    return false
-}
 
     private static getEnvVariablesCQSupport(): PropertiesConfig {
-    const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
+        const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
 
-    if (process.env[CQ_SERVER_ALIAS] && process.env[CQ_SERVER_AUTH] && process.env[CQ_SERVER_PWD] && process.env[CQ_SERVER_URL] && process.env[CQ_SERVER_USER]) {
-        properties.CQ_SERVER_ALIAS = process.env[CQ_SERVER_ALIAS] as string
-        properties.CQ_SERVER_AUTH = process.env[CQ_SERVER_AUTH] as Authentication
-        properties.CQ_SERVER_PWD = process.env[CQ_SERVER_PWD] as string
-        properties.CQ_SERVER_URL = process.env[CQ_SERVER_URL] as string
-        properties.CQ_SERVER_USER = process.env[CQ_SERVER_USER] as string
-        return properties
+        if (process.env[CQ_SERVER_ALIAS] && process.env[CQ_SERVER_AUTH] && process.env[CQ_SERVER_PWD] && process.env[CQ_SERVER_URL] && process.env[CQ_SERVER_USER]) {
+            properties.CQ_SERVER_ALIAS = process.env[CQ_SERVER_ALIAS] as string
+            properties.CQ_SERVER_AUTH = process.env[CQ_SERVER_AUTH] as Authentication
+            properties.CQ_SERVER_PWD = process.env[CQ_SERVER_PWD] as string
+            properties.CQ_SERVER_URL = process.env[CQ_SERVER_URL] as string
+            properties.CQ_SERVER_USER = process.env[CQ_SERVER_USER] as string
+            return properties
+        }
+
+        throw new Error(`Incomplete ${CONFIG_TYPE.ENV.valueOf()} variables located please fix the corrupt variables`)
     }
-
-    throw new Error(`Incomplete ${CONFIG_TYPE.ENV.valueOf()} variables located please fix the corrupt variables`)
-}
 
     private static getEmptyPropertiesConfig(): PropertiesConfig {
-    return {
-        CQ_SERVER_ALIAS: '',
-        CQ_SERVER_AUTH: Authentication.BASIC,
-        CQ_SERVER_PWD: '',
-        CQ_SERVER_URL: '',
-        CQ_SERVER_USER: ''
+        return {
+            CQ_SERVER_ALIAS: '',
+            CQ_SERVER_AUTH: Authentication.BASIC,
+            CQ_SERVER_PWD: '',
+            CQ_SERVER_URL: '',
+            CQ_SERVER_USER: ''
+        }
     }
-}
-
-    private static getdirname(): string {
-    const __filename = fileURLToPath(import.meta.url);
-    return path.dirname(__filename);
-}
 }

@@ -2,15 +2,12 @@
   "name": "log-file-reader",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
-  "module": "es2020",
-  "main": "dist/main.js",
-  "exports": "./dist/esm/main.js",
+  "module": "commonjs",
   "scripts": {
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "build:esm": "tsc --module es2022 --target es6 --outDir dist/esm",
-    "build:esm:watch": "tsc --watch --module es2022 --target es6 --outDir dist/esm"
+    "build": "tsc --outDir dist",
+    "build:watch": "tsc --watch --outDir dist"
   },
   "repository": {
     "type": "git",
@@ -35,7 +32,7 @@
     "ts-jest": "^28.0.5"
   },
   "dependencies": {
-    "chalk": "^5.0.1",
+    "chalk": "^4.1.2",
     "commander": "^9.3.0",
     "console-table-printer": "^2.11.0",
     "eslint": "^8.19.0",
