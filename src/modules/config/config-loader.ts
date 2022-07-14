@@ -67,7 +67,7 @@ export default class AppConfigLoader {
     private static getCredentials(input: PropertiesConfig): Credentials {
         if (Authentication.BASIC.valueOf() === input.CQ_SERVER_AUTH) {
             const creds: Credentials = new BasicCredentials()
-            creds.set(input.CQ_SERVER_USER, input.CQ_SERVER_PWD)
+            creds.set({username: input.CQ_SERVER_USER, password: input.CQ_SERVER_PWD})
             return creds
         }
 

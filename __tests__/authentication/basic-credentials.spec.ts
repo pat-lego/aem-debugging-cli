@@ -4,7 +4,7 @@ import { Credentials } from '../../src/modules/config/authentication/server-auth
 describe('Test Basic Auth', () => {
     test('get base64 encoded credentials', () => {
         let creds: Credentials = new BasicCredentials()
-        creds.set('admin', 'admin')
+        creds.set({username: 'admin', password: 'admin'})
 
         const auth: string = creds.get()
 

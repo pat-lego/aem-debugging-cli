@@ -1,13 +1,17 @@
-import { Authentication, Credentials } from "./server-authentication"
+import { Authentication, Credentials, Creds } from "./server-authentication"
 
 export default class BasicCredentials implements Credentials {
 
     private _username!: string
     private _password!: string
     
-    set(username: string, password: string): void {
-        this._username = username
-        this._password = password
+    set(creds: Creds): void {
+        if (creds && creds.username && creds.password) {
+            this._username = creds.username
+            this._password = creds.password
+        } else {
+            throw new Error('Missing username and password, please provide it to the CLI in order to properly use it')   
+        }
     }
    
     get(): string {

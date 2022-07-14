@@ -5,7 +5,7 @@ import { Credentials, Server } from '../../src/modules/config/authentication/ser
 describe('Test Basic Server', () => {
     test('Test Getting Server', () => {
         const creds: Credentials = new BasicCredentials()
-        creds.set('admin', 'admin')
+        creds.set({username: 'admin', password: 'admin'})
         const server: Server = new BasicServer()
         server.set('some server', 'https://abc.com:8181', creds)
 

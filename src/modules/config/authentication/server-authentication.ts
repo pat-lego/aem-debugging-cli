@@ -2,15 +2,18 @@ export enum Authentication {
     BASIC = "BASIC"
 }
 
+export interface Creds {
+    username?: string,
+    password?: string
+   
+}
 export interface Credentials {
 
     /**
      * Set the authenticaiton information for a given user
-     *
-     * @param {string} username The username of a given user
-     * @param {string} password The password of a given user
+     * @param {Creds} creds - The input credentials
      */
-    set(username: string, password: string): void
+    set(creds: Creds): void
 
     /**
      * Get the authentication information for a given user
