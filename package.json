@@ -1,13 +1,18 @@
 {
-  "name": "log-file-reader",
+  "name": "aem-debugging-cli",
   "version": "1.0.0",
   "description": "",
-  "module": "commonjs",
+  "main": "./dist/main.js",
+  "module": "./dist/main.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "build": "tsc --outDir dist",
-    "build:watch": "tsc --watch --outDir dist"
+    "build:watch": "tsc --watch --outDir dist",
+    "prepublish": "tsc --outDir dist"
   },
   "repository": {
     "type": "git",
