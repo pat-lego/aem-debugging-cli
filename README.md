@@ -5,12 +5,16 @@ A utility used to debug AEM
 # How to configure 
 
 The CLI will check the following locations in this order for configurations:
+
 1. A .cqsupport file in the folder that node is running the app 
-Example:
-  - cd /Users/john/Desktop
-  - node tryingitout/main.js c v 
-  - The .cqsupport file needs to be in the Desktop folder since node is running from there
+
+  - Example:
+    - cd /Users/john/Desktop
+    - node tryingitout/main.js c v 
+    - The .cqsupport file needs to be in the Desktop folder since node is running from there
+
 2. Environment variables in the users shell
+
 3. A .cqsupport file in the users home directory
 
 ## Using the CLI 
