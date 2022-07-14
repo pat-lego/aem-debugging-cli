@@ -1,0 +1,5 @@
+CQ_SERVER_URL=https://google.com
+CQ_SERVER_ALIAS=alias_1
+CQ_SERVER_AUTH=BASIC
+CQ_SERVER_PWD=test
+CQ_SERVER_USER=test

@@ -4,3 +4,5 @@ package-lock.json
 dist
 coverage
 out
+src/**/*.js
+src/**/*.js.map

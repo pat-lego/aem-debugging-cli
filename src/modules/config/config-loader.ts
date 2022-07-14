@@ -65,7 +65,7 @@ export default class AppConfigLoader {
     }
 
     private static getCredentials(input: PropertiesConfig): Credentials {
-        if (Authentication.BASIC === input.CQ_SERVER_AUTH) {
+        if (Authentication.BASIC.valueOf() === input.CQ_SERVER_AUTH) {
             const creds: Credentials = new BasicCredentials()
             creds.set(input.CQ_SERVER_USER, input.CQ_SERVER_PWD)
             return creds
@@ -75,12 +75,12 @@ export default class AppConfigLoader {
     }
 
     private static hasLocalCQSupport(): boolean {
-        return fs.existsSync(`${__dirname}${path.sep}${CONFIG_FILE}`)
+        return fs.existsSync(`${process.cwd()}${path.sep}${CONFIG_FILE}`)
     }
 
     private static getLocalCQSupport(): PropertiesConfig {
         const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
-        const result: KeyValueObject = propertiesToJson(`${__dirname}${path.sep}${CONFIG_FILE}`)
+        const result: KeyValueObject = propertiesToJson(`${process.cwd()}${path.sep}${CONFIG_FILE}`)
 
         if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
             properties.CQ_SERVER_ALIAS = result[CQ_SERVER_ALIAS]
