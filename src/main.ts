@@ -1,4 +1,4 @@
-import Commands from './commands'
+import Commands from './commands.js'
 import { Command } from 'commander'
 
 const main = new Command()

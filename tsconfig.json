@@ -3,13 +3,13 @@
     "compilerOptions": {
       "declaration": true,
       "target": "es6",
-      "module": "commonjs",
+      "module": "es2022",
       "esModuleInterop": true,
       "sourceMap": true,
       "strict": true,
       "allowJs": true,
       "rootDir": "src",
-      "moduleResolution": "node"
+      "moduleResolution": "NodeNext"
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "__tests__/**/*", "*.json"],

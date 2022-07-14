@@ -1,4 +1,4 @@
-import { Authentication, Credentials, Creds } from "./server-authentication"
+import { Authentication, Credentials, Creds } from "./server-authentication.js"
 
 export default class BasicCredentials implements Credentials {
 

@@ -2,13 +2,12 @@ import path from 'node:path'
 import fs from 'fs'
 import os from 'os'
 import { KeyValueObject, propertiesToJson } from 'properties-file'
-import { fileURLToPath } from 'url'
 import chalk from "chalk"
 
-import BasicServer from "./authentication/basic-server"
-import BasicCredentials from "./authentication/basic-credentials"
-import { Authentication, Credentials, Server } from "./authentication/server-authentication"
-import { CONFIG_FILE, CQ_SERVER_URL, CQ_SERVER_ALIAS, CQ_SERVER_USER, CQ_SERVER_PWD, CQ_SERVER_AUTH, CONFIG_TYPE } from "./constants"
+import BasicServer from "./authentication/basic-server.js"
+import BasicCredentials from "./authentication/basic-credentials.js"
+import { Authentication, Credentials, Server } from "./authentication/server-authentication.js"
+import { CONFIG_FILE, CQ_SERVER_URL, CQ_SERVER_ALIAS, CQ_SERVER_USER, CQ_SERVER_PWD, CQ_SERVER_AUTH, CONFIG_TYPE } from "./constants.js"
 
 interface PropertiesConfig {
     CQ_SERVER_URL: string,

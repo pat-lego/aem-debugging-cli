@@ -5,11 +5,11 @@ import path from 'node:path'
 import chalk from "chalk"
 import { Table } from 'console-table-printer'
 
-import CredentialLoader from "./config-loader"
-import AppConfigLoader from "./config-loader"
-import { Authentication, Server, ServerInfo } from "./authentication/server-authentication"
-import { CONFIG_FILE } from './constants'
-import BaseCommand from "../base-command"
+import CredentialLoader from "./config-loader.js"
+import AppConfigLoader from "./config-loader.js"
+import { Authentication, Server, ServerInfo } from "./authentication/server-authentication.js"
+import { CONFIG_FILE } from './constants.js'
+import BaseCommand from "../base-command.js"
 
 interface IAppConfig {
     server: Server
