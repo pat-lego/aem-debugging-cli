@@ -1,8 +1,8 @@
-# JS Log File
+# AEM Debbuging Utility
 
 A utility used to debug AEM 
 
-# How to configure 
+# How to configure the CLI
 
 The CLI will check the following locations in this order for configurations:
 
@@ -46,7 +46,20 @@ export CQ_SERVER_PWD=test
 export CQ_SERVER_USER=test
 ```
 
-## Project Stuff
+
+
+
+# Commands
+
+## Rlog
+
+Parse and sort the log file to find the slowest request
+
+### Example
+
+node main.js rlog analyze:file <filePath> [options]
+
+# Project Stuff
 ## How to run
 
 `node main.js`
