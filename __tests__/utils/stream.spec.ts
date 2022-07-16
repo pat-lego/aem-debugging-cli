@@ -8,9 +8,9 @@ describe('Test Streams', () => {
         var callBackFn = jest.fn((e) => { return e.line })
 
         const stream = streamLogs.readLinesInFileSync({
-            fileName: '__tests__/resources/error.log',
+            filePath: '__tests__/resources/error.log',
             callback: callBackFn,
-            errorFn: () => { return 'Error' },
+            errorFn: (e) => { return 'Error' },
             endFn: () => { return 'Done' }
         });
 
@@ -30,7 +30,7 @@ describe('Test Streams', () => {
             username: 'pat',
             password: 'lego',
             callback: mockCallBack,
-            errorFn: () => {return 'Error'},
+            errorFn: (e) => {return 'Error'},
             endFn: () => {
                 expect(mockCallBack).toHaveBeenCalled()
                 done()

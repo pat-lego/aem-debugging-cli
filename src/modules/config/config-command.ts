@@ -11,10 +11,6 @@ import { Authentication, Server, ServerInfo } from "./authentication/server-auth
 import { CONFIG_FILE } from './constants.js'
 import BaseCommand from "../base-command.js"
 
-interface IAppConfig {
-    server: Server
-}
-
 export default class AppConfig implements BaseCommand {
 
     name: string = 'config'
@@ -37,7 +33,7 @@ export default class AppConfig implements BaseCommand {
 
         //TODO implement a way to setup the .cqsupport file
         program
-            .command('set-basic')
+            .command('set:basic')
             .alias('sb')
             .argument('<serverUrl>', 'Server URL must be fully qualified i.e. https://abc.com:8181')
             .argument('<serverAlias>', 'A unique name to identify this server')

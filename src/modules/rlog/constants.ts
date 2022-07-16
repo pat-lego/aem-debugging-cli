@@ -11,7 +11,7 @@ const LOG_ERROR_PATTERN = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9
  * ([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\s(\*INFO\*|\*WARN\*|\*ERROR\*)\s([[A-Za-z0-9-]+])\s([A-Za-z\.]+)\s([0-9]{2}\/[A-Za-z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}\s\+[0-9]{4})\s([[0-9]+])\s(\-\>)\s([A-Za-z]{3,6})\s([A-Za-z0-9-/\.\?\:\&\=\;]+)\s(HTTP\/[0-9-\.]{3})
  */
 // eslint-disable-next-line no-useless-escape
-const LOG_INCOMING_REQUEST = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\s(\*INFO\*|\*WARN\*|\*ERROR\*)\s([[A-Za-z0-9-]+])\s([A-Za-z\.]+)\s([0-9]{2}\/[A-Za-z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}\s\+[0-9]{4})\s([[0-9]+])\s(\-\>)\s([A-Za-z]{3,6})\s([A-Za-z0-9-/\.\?\:\&\=\;]+)\s(HTTP\/[0-9-\.]{3})/
+const LOG_INCOMING_REQUEST = /([a-zA-Z0-9\/\:\+]+\s\+[0-9]+)\s(\[[0-9]+\])\s(->)\s([A-Z]{3})\s([a-zA-Z0-9/\.\?\:\=\&\-\%]+)/
 
 /**
  * Regex applied to the outgoing requests from the request log
@@ -19,6 +19,6 @@ const LOG_INCOMING_REQUEST = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[
  * ([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\s(\*INFO\*|\*WARN\*|\*ERROR\*)\s([[A-Za-z0-9-]+])\s([A-Za-z\.]+)\s([0-9]{2}\/[A-Za-z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}\s\+[0-9]{4})\s([[0-9]+])\s(\<\-)\s([0-9]{3})\s([A-Za-z0-9-/\.\?\:\&\=\;]+)\s([0-9]+ms)
  */
 // eslint-disable-next-line no-useless-escape
-const LOG_OUTGOING_REQUEST = /([0-9]{2}.[0-9]{2}.[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\s(\*INFO\*|\*WARN\*|\*ERROR\*)\s([[A-Za-z0-9-]+])\s([A-Za-z\.]+)\s([0-9]{2}\/[A-Za-z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}\s\+[0-9]{4})\s([[0-9]+])\s(\<\-)\s([0-9]{3})\s([A-Za-z0-9-/\.\?\:\&\=\;]+)\s([0-9]+ms)/
+const LOG_OUTGOING_REQUEST = /([a-zA-Z0-9\/\:\+]+\s\+[0-9]+)\s(\[[0-9]+\])\s(<-)\s([0-9]{3})\s([a-zA-Z0-9/\-\;\=\.]+)\s[a-zA-Z0-9\=\.\;\-]*\s?[a-zA-Z0-9\=\.\;\-]*\s?([0-9]+)([a-z]+)/
 
-export { LOG_ERROR_PATTERN, LOG_INCOMING_REQUEST, LOG_OUTGOING_REQUEST }
+export default { LOG_ERROR_PATTERN, LOG_INCOMING_REQUEST, LOG_OUTGOING_REQUEST }

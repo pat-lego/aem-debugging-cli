@@ -3,11 +3,11 @@ import * as https from 'https'
 import * as http from 'http'
 import * as readline from 'readline' 
 
-interface ReadLinesInFile {
-    fileName: string,
+export interface ReadLinesInFile {
+    filePath: string,
     callback(input: any): any,
-    errorFn(input: any): any,
-    endFn(input: any): any
+    errorFn(error: any, opts?: any): any,
+    endFn(opts?: any): any
 }
 
 /**
@@ -25,16 +25,16 @@ interface ReadLinesInFile {
  * @param {Object} Configuration - Input object used to manage the way the stream is read 
  * @returns The stream or undefined if the file was not found
  */
-const readLinesInFileSync = (e: ReadLinesInFile) => {
-    if (e.fileName) {
-        const stream: any = createReadStream(e.fileName)
+const readLinesInFileSync = (e: ReadLinesInFile, opts?: any) => {
+    if (e.filePath) {
+        const stream: any = createReadStream(e.filePath)
         readline.createInterface({ input: stream }).on('line', (line: string) => {
             e.callback({ ...e, line })
         })
 
         if (stream) {
-            stream.on('error', e.errorFn)
-            stream.on('end', e.endFn)
+            stream.on('error', (error: any, opts: any) => e.errorFn(error, opts))
+            stream.on('close', () => e.endFn(opts))
         }
 
         return stream
@@ -42,16 +42,16 @@ const readLinesInFileSync = (e: ReadLinesInFile) => {
     return undefined
 }
 
-interface ReadLinesInURL {
+export interface ReadLinesInURL {
     url: string,
     username?: string,
     password?: string,
-    callback: any,
-    errorFn: any,
-    endFn: any
+    callback(input: any): any,
+    errorFn(error: any, opts?: any): any,
+    endFn(opts?: any): any
 }
 
-const readLinesInURLSync = (e: ReadLinesInURL) => {
+const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
     let options: any = {
     }
     if (e.username && e.password) {
@@ -67,8 +67,8 @@ const readLinesInURLSync = (e: ReadLinesInURL) => {
                 e.callback({ ...e, line })
             })
     
-            res.on('error', e.errorFn)
-            res.on('close', e.endFn)
+            res.on('error', (error: any, opts: any) => e.errorFn(error, opts))
+            res.on('close', () => e.endFn(opts))
         })
     } else {
         http.get(e.url, options, (res: any) => {
@@ -78,8 +78,8 @@ const readLinesInURLSync = (e: ReadLinesInURL) => {
                 e.callback({ ...e, line })
             })
     
-            res.on('error', e.errorFn)
-            res.on('close', e.endFn)
+            res.on('error', (error: any, opts: any) => e.errorFn(error, opts))
+            res.on('close', () => e.endFn(opts))
         })
     }
 }
