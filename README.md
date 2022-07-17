@@ -59,6 +59,14 @@ Parse and sort the log file to find the slowest request
 
 node main.js rlog analyze:file <filePath> [options]
 
+## URL
+
+Open the URL for a given debugging page in AEM
+
+### Example
+
+node main.js url system:sling-events
+
 # Project Stuff
 ## How to run
 

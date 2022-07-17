@@ -17,37 +17,37 @@ interface PropertiesConfig {
     CQ_SERVER_AUTH: Authentication
 }
 
-export default class AppConfigLoader {
+export default class ConfigLoader {
 
     static get(): Server {
-        if (AppConfigLoader.hasLocalCQSupport()) {
-            const result: PropertiesConfig = AppConfigLoader.getLocalCQSupport()
-            return AppConfigLoader.getServer(result)
+        if (ConfigLoader.hasLocalCQSupport()) {
+            const result: PropertiesConfig = ConfigLoader.getLocalCQSupport()
+            return ConfigLoader.getServer(result)
         }
 
-        if (AppConfigLoader.hasEnvVariablesCQSupport()) {
+        if (ConfigLoader.hasEnvVariablesCQSupport()) {
             const result: PropertiesConfig = this.getEnvVariablesCQSupport()
-            return AppConfigLoader.getServer(result)
+            return ConfigLoader.getServer(result)
         }
 
-        if (AppConfigLoader.hasHomeDirCQSupport()) {
+        if (ConfigLoader.hasHomeDirCQSupport()) {
             const result: PropertiesConfig = this.getHomeDirCQSupport()
-            return AppConfigLoader.getServer(result)
+            return ConfigLoader.getServer(result)
         }
 
         throw new Error('Could not locate credentials')
     }
 
     static source(): CONFIG_TYPE {
-        if (AppConfigLoader.hasLocalCQSupport()) {
+        if (ConfigLoader.hasLocalCQSupport()) {
             return CONFIG_TYPE.LOCAL
         }
 
-        if (AppConfigLoader.hasEnvVariablesCQSupport()) {
+        if (ConfigLoader.hasEnvVariablesCQSupport()) {
             return CONFIG_TYPE.ENV
         }
 
-        if (AppConfigLoader.hasHomeDirCQSupport()) {
+        if (ConfigLoader.hasHomeDirCQSupport()) {
             return CONFIG_TYPE.HOME
         }
 
@@ -55,7 +55,7 @@ export default class AppConfigLoader {
     }
 
     private static getServer(input: PropertiesConfig): Server {
-        const credentials: Credentials = AppConfigLoader.getCredentials(input);
+        const credentials: Credentials = ConfigLoader.getCredentials(input);
 
         const server: Server = new BasicServer()
         server.set(input.CQ_SERVER_ALIAS, input.CQ_SERVER_URL, credentials)
@@ -78,7 +78,7 @@ export default class AppConfigLoader {
     }
 
     private static getLocalCQSupport(): PropertiesConfig {
-        const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
+        const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
         const result: KeyValueObject = propertiesToJson(`${process.cwd()}${path.sep}${CONFIG_FILE}`)
 
         if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
@@ -99,7 +99,7 @@ export default class AppConfigLoader {
     }
 
     private static getHomeDirCQSupport(): PropertiesConfig {
-        const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
+        const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
         const result: KeyValueObject = propertiesToJson(`${os.homedir()}${path.sep}${CONFIG_FILE}`)
 
         if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
@@ -138,7 +138,7 @@ export default class AppConfigLoader {
     }
 
     private static getEnvVariablesCQSupport(): PropertiesConfig {
-        const properties: PropertiesConfig = AppConfigLoader.getEmptyPropertiesConfig()
+        const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
 
         if (process.env[CQ_SERVER_ALIAS] && process.env[CQ_SERVER_AUTH] && process.env[CQ_SERVER_PWD] && process.env[CQ_SERVER_URL] && process.env[CQ_SERVER_USER]) {
             properties.CQ_SERVER_ALIAS = process.env[CQ_SERVER_ALIAS] as string

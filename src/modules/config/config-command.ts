@@ -6,13 +6,13 @@ import chalk from "chalk"
 import { Table } from 'console-table-printer'
 
 import CredentialLoader from "./config-loader.js"
-import AppConfigLoader from "./config-loader.js"
+import ConfigLoader from "./config-loader.js"
 import { Authentication, Server, ServerInfo } from "./authentication/server-authentication.js"
 import { CONFIG_FILE } from './constants.js'
 import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 
-export default class AppConfig extends BaseCommand<BaseEvent> {
+export default class ConfigCommand extends BaseCommand<BaseEvent> {
 
     name: string = 'config'
     
@@ -78,7 +78,7 @@ export default class AppConfig extends BaseCommand<BaseEvent> {
     }
 
     doSet(serverUrl: string, serverAlias: string, username: string, password: string): BaseEvent {
-        AppConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
+        ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
         this.eventEmitter.emit('config', {command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
         return this.eventEmitter
     }

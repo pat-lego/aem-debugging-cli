@@ -4,12 +4,7 @@ import streamLogs, { ReadLinesInFile } from '../../utils/streams.js'
 import constants from './constants.js'
 import BaseEvent, { CommandState, CommandEvent } from '../base-event.js'
 
-export interface IRequestLog {
-    top: Number,
-    requestLog: String
-}
-
-export default class RequestLog extends BaseCommand<BaseEvent> {
+export default class RequestLogCommand extends BaseCommand<BaseEvent> {
     name: string = 'rlog'
     
     constructor(baseEvent: BaseEvent) {
