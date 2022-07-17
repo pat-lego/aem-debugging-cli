@@ -9,7 +9,7 @@
       "strict": true,
       "allowJs": true,
       "rootDir": "src",
-      "moduleResolution": "NodeNext"
+      "moduleResolution": "node"
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "__tests__/**/*", "*.json"],
