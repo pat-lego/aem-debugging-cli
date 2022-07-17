@@ -1,6 +1,7 @@
 import { Command } from 'commander'
+import EventEmitter from 'events'
 
-export default interface BaseCommand {
+interface ICommand {
     /**
      * The name of the command
      */
@@ -11,4 +12,17 @@ export default interface BaseCommand {
      * @returns {Command}
      */
     parse(): Command
+}
+
+export default abstract class BaseCommand<T extends EventEmitter> implements ICommand {
+
+    protected eventEmitter: T
+
+    constructor(eventEmitter: T) {
+        this.eventEmitter = eventEmitter
+    }
+
+    abstract name: string
+    abstract parse(): Command
+
 }

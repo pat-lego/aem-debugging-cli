@@ -2,14 +2,19 @@ import { Command } from 'commander'
 import BaseCommand from '../base-command.js'
 import streamLogs, { ReadLinesInFile } from '../../utils/streams.js'
 import constants from './constants.js'
+import BaseEvent, { CommandState, CommandEvent } from '../base-event.js'
 
 export interface IRequestLog {
     top: Number,
     requestLog: String
 }
 
-export default class RequestLog implements BaseCommand {
+export default class RequestLog extends BaseCommand<BaseEvent> {
     name: string = 'rlog'
+    
+    constructor(baseEvent: BaseEvent) {
+        super(baseEvent)
+    }
 
     parse(): Command {
         const program = new Command(this.name)
@@ -19,7 +24,6 @@ export default class RequestLog implements BaseCommand {
             .argument('<file>', 'The path to request log file')
             .option('--sort <order>', 'desc | asc')
             .option('--top <number>', 'Maximum number of lines')
-            .option('--debug', 'Additional logging for debugging purposes')
             .action((file, options) => {
                 this.runAnalyze(file, options)
             })
@@ -27,7 +31,7 @@ export default class RequestLog implements BaseCommand {
         return program
     }
 
-    runAnalyze(file: string, options: any): void {
+    runAnalyze(file: string, options: any): BaseEvent {
         let sort = 'desc'
         let map = new Map<string, Rlog>()
         if (options.sort) {
@@ -40,9 +44,6 @@ export default class RequestLog implements BaseCommand {
                 console.error(e.message, e)
             },
             endFn: () => {
-                if (options.debug) {
-                    console.debug('Completed reading the file stream for rlog analyze command')
-                }
                 if (options.top) {
                     let index = 0
                     for (let key of map.keys()) {
@@ -56,7 +57,7 @@ export default class RequestLog implements BaseCommand {
                         console.log(`${key} - URL: ${map.get(key)?.url} Time: ${map.get(key)?.timestamp}${map.get(key)?.units}`)
                     }
                 }
-
+                this.eventEmitter.emit('rlog', {msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:file', program: this.name} as CommandEvent)
             },
             callback: (input: any) => {
                 // Parse INCOMING requests
@@ -88,37 +89,39 @@ export default class RequestLog implements BaseCommand {
                 }
 
                 // Sort the Map
-                map = new Map([...map].sort((a, b) => sortMap(a, b, sort)))
+                map = new Map([...map].sort((a, b) => this.sortMap(a, b, sort)))
             }
         }
 
         streamLogs.readLinesInFileSync(streamObj)
+        return this.eventEmitter
     }
-}
-const sortMap = (a: [string, Rlog], b: [string, Rlog], order: string): number => {
-    if (order === 'asc') {
+
+    sortMap(a: [string, Rlog], b: [string, Rlog], order: string): number {
+        if (order === 'asc') {
+            if (a[1].timestamp > b[1].timestamp) {
+                return 1
+            }
+    
+            if (a[1].timestamp < b[1].timestamp) {
+                return -1
+            }
+        }
+    
         if (a[1].timestamp > b[1].timestamp) {
+            return -1
+        }
+    
+        if (a[1].timestamp < b[1].timestamp) {
             return 1
         }
 
-        if (a[1].timestamp < b[1].timestamp) {
-            return -1
-        }
         return 0
+    
     }
-
-    if (a[1].timestamp > b[1].timestamp) {
-        return -1
-    }
-
-    if (a[1].timestamp < b[1].timestamp) {
-        return 1
-    }
-    return 0
-
 }
 
-interface Rlog {
+export interface Rlog {
     timestamp: number
     url: string
     units: string
