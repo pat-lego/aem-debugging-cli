@@ -1,13 +1,13 @@
-import { Command } from "commander";
-import BaseCommand from "../base-command.js";
-import BaseEvent, { CommandEvent, CommandState } from "../base-event.js";
-import { ServerInfo } from "../config/authentication/server-authentication.js";
-import ConfigLoader from "../config/config-loader.js";
+import { Command } from "commander"
+import BaseCommand from "../base-command.js"
+import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
+import { ServerInfo } from "../config/authentication/server-authentication.js"
+import ConfigLoader from "../config/config-loader.js"
 import open from 'open'
-import chalk from "chalk";
+import chalk from "chalk"
 
 export default class UrlCommand extends BaseCommand<BaseEvent> {
-    name: string = 'url';
+    name: string = 'url'
 
     constructor(eventEmitter: BaseEvent) {
         super(eventEmitter)

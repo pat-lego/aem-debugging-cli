@@ -55,7 +55,7 @@ export default class ConfigLoader {
     }
 
     private static getServer(input: PropertiesConfig): Server {
-        const credentials: Credentials = ConfigLoader.getCredentials(input);
+        const credentials: Credentials = ConfigLoader.getCredentials(input)
 
         const server: Server = new BasicServer()
         server.set(input.CQ_SERVER_ALIAS, input.CQ_SERVER_URL, credentials)
@@ -123,9 +123,9 @@ export default class ConfigLoader {
 
         try {
             const cqsupport = `${CQ_SERVER_ALIAS}=${serverAlias}\n${CQ_SERVER_URL}=${serverUrl}\n${CQ_SERVER_AUTH}=${auth}\n${CQ_SERVER_USER}=${username}\n${CQ_SERVER_PWD}=${password}`
-            fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, cqsupport);
+            fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, cqsupport)
         } catch (e) {
-            console.error(chalk.red(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`));
+            console.error(chalk.red(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`))
         }
     }
 

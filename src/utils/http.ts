@@ -1,5 +1,5 @@
-import axios, { AxiosResponse } from "axios";
-import { Authentication, ServerInfo } from "../modules/config/authentication/server-authentication.js";
+import axios, { AxiosResponse } from "axios"
+import { Authentication, ServerInfo } from "../modules/config/authentication/server-authentication.js"
 
 const get = async (serverInfo: ServerInfo, path: string): Promise<any> => {
     if (serverInfo.type === Authentication.BASIC) {
