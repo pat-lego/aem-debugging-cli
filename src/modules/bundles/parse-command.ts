@@ -7,7 +7,7 @@ import httpclient from '../../utils/http.js'
 import chalk from "chalk"
 
 export default class ParseCommand extends BaseCommand<BaseEvent> {
-    name: string = 'parse'
+    name: string = 'bundles'
 
     constructor(eventEmitter: BaseEvent) {
         super(eventEmitter)
@@ -16,8 +16,8 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program: Command = new Command(this.name)
 
-        program.command('system:bundles')
-            .alias('sb')
+        program.command('parse:state')
+            .alias('ps')
             .argument('<state>', 'i (Installed) | a (Active) | r (Resolved) | A (All)')
             .action((state: string) => {
                 this.parseBundle(state)
@@ -60,11 +60,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 }
             }
 
-            this.eventEmitter.emit(this.name, {command: 'system:bundles', program: this.name, msg: 'Successfully parsed bundles', state: CommandState.SUCCEEDED} as CommandEvent)
+            this.eventEmitter.emit(this.name, {command: 'parse:state', program: this.name, msg: 'Successfully parsed bundle state', state: CommandState.SUCCEEDED} as CommandEvent)
             
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to parse system:bundles in the ${this.name} program`), e)
-            this.eventEmitter.emit(this.name, {command: 'system:bundles', program: this.name, msg: 'Failed to parse bundles', state: CommandState.FAILED} as CommandEvent)
+            console.error(chalk.red(`Caught errror ${e.message} when trying to parse bundle state in the ${this.name} program`), e)
+            this.eventEmitter.emit(this.name, {command: 'parse:state', program: this.name, msg: 'Failed to parse bundle state', state: CommandState.FAILED} as CommandEvent)
         })
         return this.eventEmitter
     }
