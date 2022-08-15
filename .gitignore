@@ -6,3 +6,4 @@ coverage
 out
 src/**/*.js
 src/**/*.js.map
+.cqsupport

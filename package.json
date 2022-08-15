@@ -9,6 +9,7 @@
     "dist/"
   ],
   "scripts": {
+    "start": "node dist/main.js",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "build": "tsc --outDir dist",
