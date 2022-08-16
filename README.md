@@ -9,8 +9,8 @@ The CLI will check the following locations in this order for configurations:
 1. A .cqsupport file in the folder that node is running the app 
 
   - Example:
-    - cd /Users/john/Desktop
-    - node tryingitout/main.js c v 
+    - `cd /Users/john/Desktop`
+    - `node main.js c v`
     - The .cqsupport file needs to be in the Desktop folder since node is running from there
 
 2. Environment variables in the users shell
@@ -19,9 +19,9 @@ The CLI will check the following locations in this order for configurations:
 
 ## Using the CLI 
 
-- Init the cli: node main.js c i
-- Set the config: node main.js c sb <serverUrl> <serverAlias> <username> <password>
-- View the configs: node main.js c v
+1. Init the cli: `node main.js c i`
+2. Set the config: `node main.js c sb <serverUrl> <serverAlias> <username> <password>`
+3. View the configs: `node main.js c v`
 
 ## Alternatives
 
@@ -39,14 +39,12 @@ B) Configure environment variables
 
 Example:
 ```
-export CQ_SERVER_URL=https://abc.com
+export CQ_SERVER_URL=http://localhost:4502
 export CQ_SERVER_ALIAS=alias_1
 export CQ_SERVER_AUTH=BASIC
-export CQ_SERVER_PWD=test
+export CQ_SERVER_PWD=admin
 export CQ_SERVER_USER=test
 ```
-
-
 
 
 # Commands
@@ -65,37 +63,45 @@ Open the URL for a given page in AEM
 
 ### Example
 
-`node main.js url system:sling-events`
+Opens the Apache Sling Eventing and Job Handling console.
 
-## Parse
+`node main.js url system:sling-events -o`
 
-Parse specific system data from AEM
+## Bundles
+
+Parse and view bundle information in AEM.
+
 
 ### Example
 
 Show all active bundles in AEM:
 
-`node main.js parse system:bundles a`
+`node main.js bundles parse:state a`
 
-# Project Stuff
+# Installation, Running, and Building 
+
+## How to Install
+
+`npm install`
+
 ## How to run
 
-`node main.js`
+`node main.js <commands>` or `node main.js help` to list all the available
+commands.
 
 ## How to build
 
-- npm install 
-- npm run build:esm
+- `npm run build:esm`
 
-## How to test
+## Run Tests
 
-- npm install
-- npm test
+- `npm install`
+- `npm test`
 
 ## How to enable watch
 
-- npm install
-- npm run build:watch
+- `npm install`
+- `npm run build:watch`
 
 # Contributors
 

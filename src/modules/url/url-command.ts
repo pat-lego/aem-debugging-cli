@@ -87,6 +87,12 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.systemSlingEvents(options)
         })
 
+        program.command('system:jmx')
+            .alias('sjmx')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemJmxConsole(options)
+            })
 
         return program
     }
@@ -253,6 +259,34 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         }
        
         this.eventEmitter.emit('url', {command: 'system:index-health', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+        return this.eventEmitter
+    }
+
+    systemJmxConsole(options: any): BaseEvent {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            const { serverUrl } = server
+
+            if (options.open) {
+                open(`${serverUrl}/system/console/jmx`)
+            } else {
+                console.log(chalk.green(`${serverUrl}/system/console/jmx`))
+            }
+        } catch (e) {
+            this.eventEmitter.emit('url', { 
+                command: 'system:jmx',
+                msg: 'Failed to open browser window',
+                program: 'url',
+                state: CommandState.FAILED, 
+            })
+        }
+
+        this.eventEmitter.emit('url', {
+            command: 'system:jmx',
+            msg: 'Opened Browser Window',
+            program: 'url',
+            state: CommandState.SUCCEEDED,
+        })
         return this.eventEmitter
     }
 
