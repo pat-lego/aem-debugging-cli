@@ -103,6 +103,14 @@ commands.
 - `npm install`
 - `npm run build:watch`
 
+## How to submit a PR
+
+- Create a branch that starts with feature/*
+- Push your changes to that branch 
+- Add a test if applicable
+- Create a pull request to master with that branch
+- Allow CI/CD to build and validate it passes
+
 # Contributors
 
 - [Patrique Legault](https://twitter.com/_patlego)
