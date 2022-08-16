@@ -1,7 +1,7 @@
 name: Node.js CI
 on:
   push:
-    branches: [ master ]
+    branches: [ master, feature/* ]
 jobs:
   build:
     runs-on: ubuntu-latest
