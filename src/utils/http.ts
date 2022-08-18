@@ -2,12 +2,10 @@ import axios, { AxiosResponse } from "axios"
 import { Authentication, ServerInfo } from "../modules/config/authentication/server-authentication.js"
 
 
-const get = async (request: {serverInfo: ServerInfo, path: string}): Promise<any> => {
+const get = async (request: {serverInfo: ServerInfo, path: string, params?: any}): Promise<any> => {
     if (request.serverInfo.type === Authentication.BASIC) {
         try {
-            const resp: any = await axios.get(`${request.serverInfo.serverUrl}${request.path}`, {headers: {
-                'Authorization': `Basic ${request.serverInfo.auth}`
-            }})
+            const resp: any = await axios.get(`${request.serverInfo.serverUrl}${request.path}`, {headers: {'Authorization': `Basic ${request.serverInfo.auth}`}, params: request.params})
             return resp
         } catch (e) {
             throw new Error(`Could not perform http get to ${request.serverInfo.serverUrl}${request.path}`)
