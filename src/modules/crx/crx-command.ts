@@ -55,7 +55,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
     listCrxPackage() {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
-        httpclient.get({ serverInfo, path: `/crx/packmgr/service.jsp` as string, params: {cmd: "ls"} }).then((response) => {
+        httpclient.get({ serverInfo, path: `/crx/packmgr/list.jsp` as string, params: {cmd: "ls"} }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
             } else {
