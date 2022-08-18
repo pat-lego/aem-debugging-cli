@@ -7,7 +7,6 @@ import fs from 'fs'
 import FormData from 'form-data'
 import httpclient from '../../utils/http.js'
 import chalk from "chalk"
-import xml2json from 'xml-js'
 
 export default class CRXCommand extends BaseCommand<BaseEvent> {
     name: string = 'crx'
