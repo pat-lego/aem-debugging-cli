@@ -1,5 +1,5 @@
 import BaseEvent, { CommandEvent, CommandState } from '../../../src/modules/base-event'
-import RequestLog, { Rlog } from '../../../src/modules/rlog/rlog-command'
+import RequestLog, { Rlog } from '../../../src/modules/log/log-command'
 
 describe('test rlog sort', () => {
     test('sort map equals', () => {
@@ -42,7 +42,7 @@ describe('test rlog command', () => {
     test('test command', done => {
         console.log = jest.fn()
         const requestLog: RequestLog = new RequestLog(new BaseEvent())
-        requestLog.runAnalyze('__tests__/resources/author-request-cloud.log', {}).on('rlog', (event: CommandEvent) => {
+        requestLog.analyzeRlog('__tests__/resources/author-request-cloud.log', {}).on('rlog', (event: CommandEvent) => {
             expect(console.log).toHaveBeenCalled()
             expect(event.state).toEqual(CommandState.SUCCEEDED)
             done()
