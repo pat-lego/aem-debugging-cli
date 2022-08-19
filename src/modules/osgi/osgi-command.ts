@@ -9,7 +9,7 @@ import fs from 'fs'
 import FormData from 'form-data'
 
 export default class ParseCommand extends BaseCommand<BaseEvent> {
-    name: string = 'bundles'
+    name: string = 'osgi'
 
     constructor(eventEmitter: BaseEvent) {
         super(eventEmitter)

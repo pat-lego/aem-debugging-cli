@@ -5,7 +5,7 @@ import constants from './constants.js'
 import BaseEvent, { CommandState, CommandEvent } from '../base-event.js'
 
 export default class RequestLogCommand extends BaseCommand<BaseEvent> {
-    name: string = 'rlog'
+    name: string = 'log'
     
     constructor(baseEvent: BaseEvent) {
         super(baseEvent)
@@ -14,19 +14,19 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program = new Command(this.name)
         program
-            .command('analyze:file')
-            .alias('af')
+            .command('analyze:rlog')
+            .alias('ar')
             .argument('<file>', 'The path to request log file')
             .option('--sort <order>', 'desc | asc')
             .option('--top <number>', 'Maximum number of lines')
             .action((file, options) => {
-                this.runAnalyze(file, options)
+                this.analyzeRlog(file, options)
             })
 
         return program
     }
 
-    runAnalyze(file: string, options: any): BaseEvent {
+    analyzeRlog(file: string, options: any): BaseEvent {
         let sort = 'desc'
         let map = new Map<string, Rlog>()
         if (options.sort) {
