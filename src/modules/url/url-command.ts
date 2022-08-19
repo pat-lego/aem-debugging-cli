@@ -17,75 +17,75 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         const program = new Command(this.name).alias('u')
 
         program.command('system:bundles')
-        .alias('sb')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemBundles(options)
-        })
+            .alias('sb')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemBundles(options)
+            })
 
         program.command('system:config')
-        .alias('sc')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemConfig(options)
-        })
+            .alias('sc')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemConfig(options)
+            })
 
         program.command('system:components')
-        .alias('sm')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemComponents(options)
-        })
+            .alias('sm')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemComponents(options)
+            })
 
         program.command('system:health-check')
-        .alias('shc')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemHealthCheck(options)
-        })
+            .alias('shc')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemHealthCheck(options)
+            })
 
         program.command('system:index-health')
-        .alias('sih')
-        .argument('<index>', "async | async-reindex | elastic-async | fulltext-async")
-        .option("-o, --open")
-        .action((index: string, options) => {
-            this.systemIndexHealth(index, options)
-        })
+            .alias('sih')
+            .argument('<index>', "async | async-reindex | elastic-async | fulltext-async")
+            .option("-o, --open")
+            .action((index: string, options) => {
+                this.systemIndexHealth(index, options)
+            })
 
         program.command('system:version')
-        .alias('sv')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemVersion(options)
-        })
+            .alias('sv')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemVersion(options)
+            })
 
         program.command('system:requests')
-        .alias('sr')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemRequests(options)
-        })
+            .alias('sr')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemRequests(options)
+            })
 
         program.command('system:logs')
-        .alias('sl')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemLogs(options)
-        })
+            .alias('sl')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemLogs(options)
+            })
 
         program.command('system:osgi-events')
-        .alias('soe')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemOsgiEvents(options)
-        })
+            .alias('soe')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemOsgiEvents(options)
+            })
 
         program.command('system:sling-events')
-        .alias('sle')
-        .option("-o, --open")
-        .action((options) => {
-            this.systemSlingEvents(options)
-        })
+            .alias('sle')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemSlingEvents(options)
+            })
 
         program.command('system:jmx')
             .alias('sjmx')
@@ -94,7 +94,30 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemJmxConsole(options)
             })
 
+        program.command('system:os')
+            .alias('sos')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemOs(options)
+            })
+
         return program
+    }
+
+    systemOs(options: any): BaseEvent {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/jmx/java.lang%3Atype%3DOperatingSystem`)
+            } else {
+                console.log(chalk.green(`${server.serverUrl}/system/console/jmx/java.lang%3Atype%3DOperatingSystem`))
+            }
+        } catch (e) {
+            this.eventEmitter.emit('url', { command: 'system:os', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
+        }
+
+        this.eventEmitter.emit('url', { command: 'system:os', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
+        return this.eventEmitter
     }
 
     systemSlingEvents(options: any): BaseEvent {
@@ -106,10 +129,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${server.serverUrl}/system/console/slingevent`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:sling-events', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:sling-events', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:sling-events', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:sling-events', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -123,10 +146,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             }
 
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:osgi-events', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:osgi-events', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:osgi-events', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:osgi-events', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -134,16 +157,16 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
-                open(`${server.serverUrl}/system/console/slinglog`)                
+                open(`${server.serverUrl}/system/console/slinglog`)
             } else {
                 console.log(chalk.green(`${server.serverUrl}/system/console/slinglog`))
             }
 
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:logs', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:logs', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:logs', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:logs', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -156,10 +179,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${server.serverUrl}/system/console/requests`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:requests', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:requests', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:requests', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:requests', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -172,10 +195,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${server.serverUrl}/system/console/productinfo`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:version', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:version', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:version', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:version', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -188,10 +211,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${server.serverUrl}/system/console/bundles`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:bundles', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:bundles', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:bundles', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:bundles', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -205,10 +228,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             }
 
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:config', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:config', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:config', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:config', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -221,10 +244,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${server.serverUrl}/system/console/components`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:components', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:components', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:components', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:components', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -238,10 +261,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             }
 
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:health-check', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:health-check', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:health-check', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:health-check', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -255,10 +278,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             }
 
         } catch (e) {
-            this.eventEmitter.emit('url', {command: 'system:index-health', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED} as CommandEvent)
+            this.eventEmitter.emit('url', { command: 'system:index-health', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
         }
-       
-        this.eventEmitter.emit('url', {command: 'system:index-health', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED} as CommandEvent)
+
+        this.eventEmitter.emit('url', { command: 'system:index-health', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
         return this.eventEmitter
     }
 
@@ -273,11 +296,11 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(chalk.green(`${serverUrl}/system/console/jmx`))
             }
         } catch (e) {
-            this.eventEmitter.emit('url', { 
+            this.eventEmitter.emit('url', {
                 command: 'system:jmx',
                 msg: 'Failed to open browser window',
                 program: 'url',
-                state: CommandState.FAILED, 
+                state: CommandState.FAILED,
             })
         }
 
