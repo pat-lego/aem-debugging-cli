@@ -3,10 +3,13 @@ import BaseCommand from '../base-command.js'
 import streamLogs, { ReadLinesInFile } from '../../utils/streams.js'
 import constants from './constants.js'
 import BaseEvent, { CommandState, CommandEvent } from '../base-event.js'
+import ConfigLoader from '../config/config-loader.js'
+import { ServerInfo } from '../config/authentication/server-authentication.js'
+
 
 export default class RequestLogCommand extends BaseCommand<BaseEvent> {
     name: string = 'log'
-    
+
     constructor(baseEvent: BaseEvent) {
         super(baseEvent)
     }
@@ -23,7 +26,102 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.analyzeRlog(file, options)
             })
 
+        program
+            .command('tail:error')
+            .alias('te')
+            .action(() => {
+                this.tailError()
+            })
+
+        program
+            .command('tail:custom')
+            .alias('tc')
+            .argument('<logger>', 'The name of the custom logger, this assumes that it is in the logs folder')
+            .action((logger) => {
+                this.tailCustom(logger)
+            })
+
         return program
+    }
+
+    tailCustom(logger: string): BaseEvent {
+        const server: ServerInfo = ConfigLoader.get().get()
+
+        let running = false
+        let lastLine: string = ''
+        let hasLapsed = true
+
+        setInterval(() => {
+            if (!running) {
+                running = true
+                streamLogs.readLinesInURLSync({
+                    url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2F${logger}`,
+                    auth: server.auth,
+                    callback: (input: any) => {
+                        if (hasLapsed) {
+                            console.log(input.line)
+                            lastLine = input.line
+                        } else {
+                            if (lastLine === input.line) {
+                                hasLapsed = true
+                            }
+                        }
+                    },
+                    errorFn: (error: any) => {
+                        this.eventEmitter.emit('log', { msg: 'Failed to tail custom log file', state: CommandState.FAILED, command: 'tail:custom', program: this.name } as CommandEvent)
+                    },
+                    endFn: () => {
+                        running = false
+                        hasLapsed = false
+                        this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
+                    }
+                })
+            }
+
+        }, 1000)
+
+        return this.eventEmitter
+
+    }
+
+    tailError(): BaseEvent {
+        const server: ServerInfo = ConfigLoader.get().get()
+
+        let running = false
+        let lastLine: string = ''
+        let hasLapsed = true
+
+        setInterval(() => {
+            if (!running) {
+                running = true
+                streamLogs.readLinesInURLSync({
+                    url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Ferror.log`,
+                    auth: server.auth,
+                    callback: (input: any) => {
+                        if (hasLapsed) {
+                            console.log(input.line)
+                            lastLine = input.line
+                        } else {
+                            if (lastLine === input.line) {
+                                hasLapsed = true
+                            }
+                        }
+                    },
+                    errorFn: (error: any) => {
+                        this.eventEmitter.emit('log', { msg: 'Failed to tail error', state: CommandState.FAILED, command: 'tail:error', program: this.name } as CommandEvent)
+                    },
+                    endFn: () => {
+                        running = false
+                        hasLapsed = false
+                        this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:error', program: this.name } as CommandEvent)
+                    }
+                })
+            }
+
+        }, 1000)
+
+        return this.eventEmitter
+
     }
 
     analyzeRlog(file: string, options: any): BaseEvent {
@@ -37,6 +135,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             filePath: file,
             errorFn: (e) => {
                 console.error(e.message, e)
+                this.eventEmitter.emit('log', { msg: 'Failed to analyze rlog', state: CommandState.FAILED, command: 'analyze:rlog', program: this.name } as CommandEvent)
             },
             endFn: () => {
                 if (options.top) {
@@ -52,7 +151,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                         console.log(`${key} - URL: ${map.get(key)?.url} Time: ${map.get(key)?.timestamp}${map.get(key)?.units}`)
                     }
                 }
-                this.eventEmitter.emit('rlog', {msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:file', program: this.name} as CommandEvent)
+                this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:rlog', program: this.name } as CommandEvent)
             },
             callback: (input: any) => {
                 // Parse INCOMING requests
@@ -97,22 +196,22 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             if (a[1].timestamp > b[1].timestamp) {
                 return 1
             }
-    
+
             if (a[1].timestamp < b[1].timestamp) {
                 return -1
             }
         }
-    
+
         if (a[1].timestamp > b[1].timestamp) {
             return -1
         }
-    
+
         if (a[1].timestamp < b[1].timestamp) {
             return 1
         }
 
         return 0
-    
+
     }
 }
 

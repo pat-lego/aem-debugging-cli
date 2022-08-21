@@ -1,7 +1,7 @@
 import { createReadStream } from 'fs'
 import * as https from 'https'
 import * as http from 'http'
-import * as readline from 'readline' 
+import * as readline from 'readline'
 
 export interface ReadLinesInFile {
     filePath: string,
@@ -44,19 +44,18 @@ const readLinesInFileSync = (e: ReadLinesInFile, opts?: any) => {
 
 export interface ReadLinesInURL {
     url: string,
-    username?: string,
-    password?: string,
+    auth?: string,
     callback(input: any): any,
     errorFn(error: any, opts?: any): any,
     endFn(opts?: any): any
 }
 
 const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
-    let options: any = {
-    }
-    if (e.username && e.password) {
-        const auth: string = Buffer.from(`${e.username}:${e.password}`).toString('base64')
-        options = { ...options, auth }
+    let options: any = {}
+    if (e.auth) {
+        // TODO handle different types of authentication
+        const auth = { headers: { 'Authorization': `Basic ${e.auth}` } }
+        options = { ...options, ...auth }
     }
 
     if (e.url.startsWith('https://')) {
@@ -66,7 +65,7 @@ const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
             }).on('line', (line: string) => {
                 e.callback({ ...e, line })
             })
-    
+
             res.on('error', (error: any, opts: any) => e.errorFn(error, opts))
             res.on('close', () => e.endFn(opts))
         })
@@ -77,7 +76,7 @@ const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
             }).on('line', (line: string) => {
                 e.callback({ ...e, line })
             })
-    
+
             res.on('error', (error: any, opts: any) => e.errorFn(error, opts))
             res.on('close', () => e.endFn(opts))
         })
