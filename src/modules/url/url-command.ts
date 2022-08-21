@@ -165,7 +165,32 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemQueryPerformance(options)
             })
 
+        program.command('system:fsclassloader')
+            .alias('sfs')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemFSClassLoader(options)
+            })
+
         return program
+    }
+
+    systemFSClassLoader(options: any): BaseEvent {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/fsclassloader`)
+            } else {
+                console.log(chalk.green(`${server.serverUrl}/system/console/fsclassloader`))
+            }
+
+            this.eventEmitter.emit('url', { command: 'system:fsclassloader', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit('url', { command: 'system:fsclassloader', msg: 'Failed to open browser window', program: 'url', state: CommandState.FAILED } as CommandEvent)
+            return this.eventEmitter
+        }
+
+        return this.eventEmitter
     }
 
     systemQueryPerformance(options: any): BaseEvent {
