@@ -49,7 +49,7 @@ export CQ_SERVER_USER=test
 
 # Commands
 
-## Rlog
+## Log
 
 Parse and sort the log file to find the slowest request
 
@@ -67,7 +67,7 @@ Opens the Apache Sling Eventing and Job Handling console.
 
 `node main.js url system:sling-events -o`
 
-## Bundles
+## OSGi
 
 Parse and view bundle information in AEM.
 
@@ -91,7 +91,7 @@ commands.
 
 ## How to build
 
-- `npm run build:esm`
+- `npm run build`
 
 ## Run Tests
 
@@ -103,6 +103,8 @@ commands.
 - `npm install`
 - `npm run build:watch`
 
+## Example 
+
 ## How to submit a PR
 
 - Create a branch that starts with feature/*
@@ -110,6 +112,12 @@ commands.
 - Add a test if applicable
 - Create a pull request to master with that branch
 - Allow CI/CD to build and validate it passes
+
+# Alias Commands
+
+# MacOSX
+
+- echo "alias aemcli=\"node [dist_folder]/main.js \$@\"" >> ~/.zshrc
 
 # Contributors
 
