@@ -41,7 +41,42 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.tailCustom(logger)
             })
 
+        program
+            .command('analyze:error')
+            .alias('ae')
+            .argument('<level>', 'The log level message you are looking for INFO | WARN | ERROR')
+            .action((level) => {
+                this.analyzeError(level)
+            })
+
         return program
+    }
+
+    analyzeError(level: string): BaseEvent {
+        const server: ServerInfo = ConfigLoader.get().get()
+
+        streamLogs.readLinesInURLSync({
+            url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Ferror.log`,
+            auth: server.auth,
+            callback: (input: any) => {
+                if (constants.LOG_ERROR_PATTERN.test(input.line)) {
+                    const match = constants.LOG_ERROR_PATTERN.exec(input.line)
+                    if (match![3].includes(level)) {
+                        console.log(input.line)
+                    }
+                }
+            },
+            errorFn: (error: any) => {
+                this.eventEmitter.emit('log', { msg: 'Failed to tail custom log file', state: CommandState.FAILED, command: 'tail:custom', program: this.name } as CommandEvent)
+            },
+            endFn: () => {
+                this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
+            }
+        })
+
+
+        return this.eventEmitter
+
     }
 
     tailCustom(logger: string): BaseEvent {
