@@ -67,10 +67,10 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 }
             },
             errorFn: (error: any) => {
-                this.eventEmitter.emit('log', { msg: 'Failed to tail custom log file', state: CommandState.FAILED, command: 'tail:custom', program: this.name } as CommandEvent)
+                this.eventEmitter.emit('log', { msg: 'Failed to analyze errors in the error log file', state: CommandState.FAILED, command: 'analyze:error', program: this.name } as CommandEvent)
             },
             endFn: () => {
-                this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
+                this.eventEmitter.emit('log', { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:error', program: this.name } as CommandEvent)
             }
         })
 
