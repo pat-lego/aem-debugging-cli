@@ -22,9 +22,9 @@
             "program": "${workspaceFolder}/src/main.ts",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
-                "bundles",
-                "install:bundle",
-                "/Users/patriquelegault/Downloads/gson-2.9.0.jar"
+                "log",
+                "analyze:error",
+                "ERROR"
             ],
             "console": "integratedTerminal",
         }

@@ -2,7 +2,6 @@ import path from 'node:path'
 import fs from 'fs'
 import os from 'os'
 import { KeyValueObject, propertiesToJson } from 'properties-file'
-import chalk from "chalk"
 
 import BasicServer from "./authentication/basic-server.js"
 import BasicCredentials from "./authentication/basic-credentials.js"
@@ -118,14 +117,14 @@ export default class ConfigLoader {
         try {
             new URL(serverUrl)
         } catch (e) {
-            console.log(chalk.red(`Failed to write to the ${CONFIG_FILE} because the URL is not valid`))
+            console.log(`Failed to write to the ${CONFIG_FILE} because the URL is not valid`)
         }
 
         try {
             const cqsupport = `${CQ_SERVER_ALIAS}=${serverAlias}\n${CQ_SERVER_URL}=${serverUrl}\n${CQ_SERVER_AUTH}=${auth}\n${CQ_SERVER_USER}=${username}\n${CQ_SERVER_PWD}=${password}`
             fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, cqsupport)
         } catch (e) {
-            console.error(chalk.red(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`))
+            console.error(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`)
         }
     }
 

@@ -22,8 +22,11 @@
   },
   "keywords": [
     "nodejs",
-    "logfiles",
-    "analysis"
+    "logs",
+    "analysis",
+    "aem",
+    "osgi",
+    "jcr"
   ],
   "author": "Pat Legault",
   "license": "ISC",
