@@ -62,7 +62,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 if (constants.LOG_ERROR_PATTERN.test(input.line)) {
                     const match = constants.LOG_ERROR_PATTERN.exec(input.line)
                     if (match![3].includes(level)) {
-                        console.log(input.line)
+                        console.log(`${input.line}\n`)
                     }
                 }
             },
