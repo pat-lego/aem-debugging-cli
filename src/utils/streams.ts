@@ -44,22 +44,14 @@ const readLinesInFileSync = (e: ReadLinesInFile, opts?: any) => {
 
 export interface ReadLinesInURL {
     url: string,
-    auth?: string,
     callback(input: any): any,
     errorFn(error: any, opts?: any): any,
     endFn(opts?: any): any
 }
 
 const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
-    let options: any = {}
-    if (e.auth) {
-        // TODO handle different types of authentication
-        const auth = { headers: { 'Authorization': `Basic ${e.auth}` } }
-        options = { ...options, ...auth }
-    }
-
     if (e.url.startsWith('https://')) {
-        https.get(e.url, options, (res: any) => {
+        https.get(e.url, opts, (res: any) => {
             readline.createInterface({
                 input: res
             }).on('line', (line: string) => {
@@ -70,7 +62,7 @@ const readLinesInURLSync = (e: ReadLinesInURL, opts?: any) => {
             res.on('close', () => e.endFn(opts))
         })
     } else {
-        http.get(e.url, options, (res: any) => {
+        http.get(e.url, opts, (res: any) => {
             readline.createInterface({
                 input: res
             }).on('line', (line: string) => {

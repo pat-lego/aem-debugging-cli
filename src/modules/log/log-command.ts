@@ -99,7 +99,6 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
 
         streamLogs.readLinesInURLSync({
             url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Ferror.log`,
-            auth: server.auth,
             callback: (input: any) => {
                 if (constants.LOG_ERROR_PATTERN.test(input.line)) {
                     const match = constants.LOG_ERROR_PATTERN.exec(input.line)
@@ -114,7 +113,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             endFn: () => {
                 this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:error-url', program: this.name } as CommandEvent)
             }
-        })
+        }, {headers: { 'Authorization': `Basic ${server.auth}`}})
 
         return this.eventEmitter
     }
@@ -131,7 +130,6 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 running = true
                 streamLogs.readLinesInURLSync({
                     url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2F${logger}`,
-                    auth: server.auth,
                     callback: (input: any) => {
                         if (hasLapsed) {
                             console.log(input.line)
@@ -150,7 +148,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                         hasLapsed = false
                         this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
                     }
-                })
+                }, {headers: { 'Authorization': `Basic ${server.auth}`}})
             }
 
         }, 1000)
@@ -171,7 +169,6 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 running = true
                 streamLogs.readLinesInURLSync({
                     url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Ferror.log`,
-                    auth: server.auth,
                     callback: (input: any) => {
                         if (hasLapsed) {
                             console.log(input.line)
@@ -190,7 +187,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                         hasLapsed = false
                         this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:error', program: this.name } as CommandEvent)
                     }
-                })
+                }, {headers: { 'Authorization': `Basic ${server.auth}`}})
             }
 
         }, 1000)
@@ -210,7 +207,6 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
 
         const streamObj: ReadLinesInURL = {
             url: `${serverInfo.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Frequest.log`,
-            auth: serverInfo.auth,
             errorFn: (e) => {
                 console.error(e.message, e)
                 this.eventEmitter.emit(this.name, { msg: 'Failed to analyze rlog', state: CommandState.FAILED, command: 'analyze:rlog-url', program: this.name } as CommandEvent)
@@ -265,7 +261,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             }
         }
 
-        streamLogs.readLinesInURLSync(streamObj)
+        streamLogs.readLinesInURLSync(streamObj, {headers: { 'Authorization': `Basic ${serverInfo.auth}`}})
         return this.eventEmitter
     }
 
