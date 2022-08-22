@@ -42,7 +42,7 @@ describe('test rlog command', () => {
     test('test command', done => {
         console.log = jest.fn()
         const requestLog: RequestLog = new RequestLog(new BaseEvent())
-        requestLog.analyzeRlog('__tests__/resources/author-request-cloud.log', {}).on('log', (event: CommandEvent) => {
+        requestLog.analyzeRlogFile('__tests__/resources/author-request-cloud.log', {}).on('log', (event: CommandEvent) => {
             expect(console.log).toHaveBeenCalled()
             expect(event.state).toEqual(CommandState.SUCCEEDED)
             done()

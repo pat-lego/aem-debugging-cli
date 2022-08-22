@@ -23,8 +23,7 @@
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
                 "log",
-                "analyze:error",
-                "ERROR"
+                "analyze:rlog-url"
             ],
             "console": "integratedTerminal",
         }
