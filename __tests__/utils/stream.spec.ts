@@ -27,7 +27,6 @@ describe('Test Streams', () => {
 
         streamLogs.readLinesInURLSync({
             url: 'http://www.google.com',
-            auth: 'pat.lego',
             callback: mockCallBack,
             errorFn: (e) => {return 'Error'},
             endFn: () => {
