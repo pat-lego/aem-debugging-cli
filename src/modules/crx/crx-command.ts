@@ -6,7 +6,6 @@ import ConfigLoader from "../config/config-loader.js"
 import fs from 'fs'
 import FormData from 'form-data'
 import httpclient from '../../utils/http.js'
-import chalk from "chalk"
 
 export default class CRXCommand extends BaseCommand<BaseEvent> {
     name: string = 'crx'
@@ -59,13 +58,13 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
             } else {
-                console.log(chalk.red(`Failed to list all packages received a ${response.status}`))
+                console.log(`Failed to list all packages received a ${response.status}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Successfully listed all packages`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to list all packages in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to list all packages in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Failed to list all packages`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -78,15 +77,15 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         form.append("cmd", "uninstall")
         httpclient.post({ serverInfo, path: `/crx/packmgr/service/.json/etc/packages/${groupname}/${packagename}` as string, body: form }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(chalk.green(`Successfully uninstalled ${packagename}`))
+                console.log(`Successfully uninstalled ${packagename}`)
             } else {
-                console.log(chalk.red(`Failed to uninstall ${packagename} received a ${response.status}`))
+                console.log(`Failed to uninstall ${packagename} received a ${response.status}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Successfully uninstalled package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to uninstall package ${packagename} in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to uninstall package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Failed to uninstall package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -99,15 +98,15 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         form.append("cmd", "delete")
         httpclient.post({ serverInfo, path: `/crx/packmgr/service/.json/etc/packages/${groupname}/${packagename}` as string, body: form }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(chalk.green(`Successfully deleted ${packagename}`))
+                console.log(`Successfully deleted ${packagename}`)
             } else {
-                console.log(chalk.red(`Failed to deleted ${packagename} received a ${response.status}`))
+                console.log(`Failed to deleted ${packagename} received a ${response.status}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Successfully deleted package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to delete package ${packagename} in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to delete package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Failed to delete package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -123,15 +122,15 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         form.append("file", fs.createReadStream(packagepath))
         httpclient.post({ serverInfo, path: '/crx/packmgr/service.jsp' as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(chalk.green(`Successfully installed ${packagepath}`))
+                console.log(`Successfully installed ${packagepath}`)
             } else {
-                console.log(chalk.red(`Failed to install ${packagepath}`))
+                console.log(`Failed to install ${packagepath}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Successfully installed package ${packagepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to install package ${packagepath} in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to install package ${packagepath} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Failed to install package ${packagepath}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter

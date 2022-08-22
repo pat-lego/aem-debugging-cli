@@ -4,7 +4,6 @@ import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import open from 'open'
-import chalk from "chalk"
 
 export default class UrlCommand extends BaseCommand<BaseEvent> {
     name: string = 'url'
@@ -181,7 +180,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/fsclassloader`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/fsclassloader`))
+                console.log(`${server.serverUrl}/system/console/fsclassloader`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:fsclassloader', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -199,7 +198,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/libs/granite/operations/content/diagnosistools/queryPerformance.html`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/libs/granite/operations/content/diagnosistools/queryPerformance.html`))
+                console.log(`${server.serverUrl}/libs/granite/operations/content/diagnosistools/queryPerformance.html`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:query-performance', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -218,7 +217,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/status-slingscheduler`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/status-slingscheduler`))
+                console.log(`${server.serverUrl}/system/console/status-slingscheduler`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:sling-scheduler', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -236,7 +235,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/status-slingprops`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/status-slingprops`))
+                console.log(`${server.serverUrl}/system/console/status-slingprops`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:sling-properties', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -254,7 +253,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/status-jstack-threaddump`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/status-jstack-threaddump`))
+                console.log(`${server.serverUrl}/system/console/status-jstack-threaddump`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:jstack-threads', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -272,7 +271,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/memoryusage`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/memoryusage`))
+                console.log(`${server.serverUrl}/system/console/memoryusage`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:memoryusage', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -290,7 +289,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/libs/granite/ui/content/dumplibs.validate.html`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/libs/granite/ui/content/dumplibs.validate.html`))
+                console.log(`${server.serverUrl}/libs/granite/ui/content/dumplibs.validate.html`)
             }
 
 
@@ -309,7 +308,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/libs/granite/ui/content/dumplibs.test.html`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/libs/granite/ui/content/dumplibs.test.html`))
+                console.log(`${server.serverUrl}/libs/granite/ui/content/dumplibs.test.html`)
             }
 
 
@@ -327,7 +326,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/libs/granite/ui/content/dumplibs.html`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/libs/granite/ui/content/dumplibs.html`))
+                console.log(`${server.serverUrl}/libs/granite/ui/content/dumplibs.html`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:list-clientlibs', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -345,7 +344,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/libs/granite/ui/content/dumplibs.rebuild.html?invalidate=true`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/libs/granite/ui/content/dumplibs.rebuild.html?invalidate=true`))
+                console.log(`${server.serverUrl}/libs/granite/ui/content/dumplibs.rebuild.html?invalidate=true`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:invalidate-clientlibs', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -363,7 +362,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/jmx/java.lang%3Atype%3DOperatingSystem`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/jmx/java.lang%3Atype%3DOperatingSystem`))
+                console.log(`${server.serverUrl}/system/console/jmx/java.lang%3Atype%3DOperatingSystem`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:os', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -380,7 +379,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/slingevent`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/slingevent`))
+                console.log(`${server.serverUrl}/system/console/slingevent`)
             }
 
 
@@ -399,7 +398,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/events`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/events`))
+                console.log(`${server.serverUrl}/system/console/events`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:osgi-events', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -418,7 +417,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/slinglog`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/slinglog`))
+                console.log(`${server.serverUrl}/system/console/slinglog`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:logs', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -436,7 +435,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/requests`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/requests`))
+                console.log(`${server.serverUrl}/system/console/requests`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:requests', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -454,7 +453,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/productinfo`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/productinfo`))
+                console.log(`${server.serverUrl}/system/console/productinfo`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:version', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -474,7 +473,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/bundles`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/bundles`))
+                console.log(`${server.serverUrl}/system/console/bundles`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:bundles', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -492,7 +491,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/configMgr`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/configMgr`))
+                console.log(`${server.serverUrl}/system/console/configMgr`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:config', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -511,7 +510,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/components`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/components`))
+                console.log(`${server.serverUrl}/system/console/components`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:components', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -529,7 +528,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/healthcheck?tags=*&overrideGlobalTimeout=`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/healthcheck?tags=*&overrideGlobalTimeout=`))
+                console.log(`${server.serverUrl}/system/console/healthcheck?tags=*&overrideGlobalTimeout=`)
             }
 
             this.eventEmitter.emit('url', { command: 'system:health-check', msg: 'Opened Browser Window', program: 'url', state: CommandState.SUCCEEDED } as CommandEvent)
@@ -549,7 +548,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${server.serverUrl}/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3D${index}%2Ctype%3DIndexStats`)
             } else {
-                console.log(chalk.green(`${server.serverUrl}/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3D${index}%2Ctype%3DIndexStats`))
+                console.log(`${server.serverUrl}/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3D${index}%2Ctype%3DIndexStats`)
             }
 
         } catch (e) {
@@ -568,7 +567,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (options.open) {
                 open(`${serverUrl}/system/console/jmx`)
             } else {
-                console.log(chalk.green(`${serverUrl}/system/console/jmx`))
+                console.log(`${serverUrl}/system/console/jmx`)
             }
 
             this.eventEmitter.emit('url', {

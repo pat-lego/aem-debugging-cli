@@ -4,7 +4,6 @@ import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
-import chalk from "chalk"
 import fs from 'fs'
 import FormData from 'form-data'
 
@@ -60,15 +59,15 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         form.append("bundlefile", fs.createReadStream(bundlepath))
         httpclient.post({ serverInfo, path: '/system/console/bundles' as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(chalk.green(`Successfully installed ${bundlepath}`))
+                console.log(`Successfully installed ${bundlepath}`)
             } else {
-                console.log(chalk.red(`Failed to install ${bundlepath}`))
+                console.log(`Failed to install ${bundlepath}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Successfully installed bundle ${bundlepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to install bundle ${bundlepath} in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to install bundle ${bundlepath} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Failed to install bundle ${bundlepath}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -81,15 +80,15 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         form.append("action", "uninstall")
         httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(chalk.green(`Successfully uninstalled ${bundlename}`))
+                console.log(`Successfully uninstalled ${bundlename}`)
             } else {
-                console.log(chalk.red(`Failed to uninstall ${bundlename}`))
+                console.log(`Failed to uninstall ${bundlename}`)
             }
 
             this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Successfully uninstalled bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to install bundle ${bundlename} in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to install bundle ${bundlename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Failed to uninstall bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -110,7 +109,7 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'parse:name', program: this.name, msg: 'Successfully parsed bundle name', state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to parse bundle name in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to parse bundle name in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'parse:name', program: this.name, msg: 'Failed to parse bundle name', state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
@@ -144,7 +143,7 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                     console.log(data.data[index])
                 }
             } else {
-                console.log(chalk.yellow('Provided state is not listed as an available argument defaulting to All'))
+                console.log('Provided state is not listed as an available argument defaulting to All')
                 for (let index = 0; index < data.data.length; index++) {
                     console.log(data.data[index])
                 }
@@ -153,7 +152,7 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'parse:state', program: this.name, msg: 'Successfully parsed bundle state', state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
-            console.error(chalk.red(`Caught errror ${e.message} when trying to parse bundle state in the ${this.name} program`), e)
+            console.error(`Caught errror ${e.message} when trying to parse bundle state in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'parse:state', program: this.name, msg: 'Failed to parse bundle state', state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter

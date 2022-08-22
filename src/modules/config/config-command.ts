@@ -2,7 +2,6 @@ import { Command } from "commander"
 import os from 'os'
 import fs from 'fs'
 import path from 'node:path'
-import chalk from "chalk"
 import { Table } from 'console-table-printer'
 
 import CredentialLoader from "./config-loader.js"
@@ -55,9 +54,9 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
         const homedir = os.homedir()
         if (!fs.existsSync(`${homedir}${path.sep}${CONFIG_FILE}`)) {
             fs.closeSync(fs.openSync(`${homedir}${path.sep}${CONFIG_FILE}`, 'w'))
-            console.log(chalk.green(`The ${homedir}${path.sep}${CONFIG_FILE} has been successfully created`))
+            console.log(`The ${homedir}${path.sep}${CONFIG_FILE} has been successfully created`)
         } else {
-            console.log(chalk.yellow(`The ${homedir}${path.sep}${CONFIG_FILE} file already exists nothing to do`))
+            console.log(`The ${homedir}${path.sep}${CONFIG_FILE} file already exists nothing to do`)
         }
         this.eventEmitter.emit('config', {command: 'init', msg: 'Init completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
         return this.eventEmitter
