@@ -38,6 +38,20 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 this.installBundle(bundlepath)
             })
 
+        program.command('stop:bundle')
+            .alias('stpb')
+            .argument('<bundlename>', 'The symbolic name to the bundle you want to stop')
+            .action((bundlename: string) => {
+                this.stopBundle(bundlename)
+            })
+
+        program.command('start:bundle')
+            .alias('strb')
+            .argument('<bundlename>', 'The symbolic name to the bundle you want to start')
+            .action((bundlename: string) => {
+                this.startBundle(bundlename)
+            })
+
         program.command('uninstall:bundle')
             .alias('ub')
             .argument('<bundlename>', 'The symbolic name to the bundle you want to uninstall')
@@ -94,6 +108,48 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Failed to list configurations`, state: CommandState.FAILED } as CommandEvent)
+        })
+        return this.eventEmitter
+    }
+
+    stopBundle(bundlename: string): BaseEvent {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const form = new FormData();
+        form.append("action", "stop")
+        httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully stopped ${bundlename}`)
+            } else {
+                console.log(`Failed to stop ${bundlename}`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to stop bundle ${bundlename} in the ${this.name} program`, e)
+            this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Failed to stop bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
+        })
+        return this.eventEmitter
+    }
+
+    startBundle(bundlename: string): BaseEvent {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const form = new FormData();
+        form.append("action", "start")
+        httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully started ${bundlename}`)
+            } else {
+                console.log(`Failed to start ${bundlename}`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to start bundle ${bundlename} in the ${this.name} program`, e)
+            this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Failed to start bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
     }
