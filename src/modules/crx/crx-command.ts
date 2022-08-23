@@ -66,7 +66,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to list all packages in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Failed to list all packages`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
     uninstallCrxPackage(packagename: string, groupname: string) {
@@ -87,7 +87,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to uninstall package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Failed to uninstall package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
     deleteCrxPackage(packagename: string, groupname: string) {
@@ -108,7 +108,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to delete package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Failed to delete package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
     installCrxPackage(packagename: string, packagepath: string) {
@@ -132,7 +132,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to install package ${packagepath} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Failed to install package ${packagepath}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
 }

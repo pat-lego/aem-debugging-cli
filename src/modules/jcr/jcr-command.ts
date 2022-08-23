@@ -49,7 +49,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo: serverInfo, path: path, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully removed ${path} node`)
-                this.eventEmitter.emit(this.name, { command: 'delete:node', program: this.name, msg: `Successfully deleted node at path ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                
             } else {
                 console.log(`Failed to remove the node at path ${path} with error code ${response.status}`)
                 this.eventEmitter.emit(this.name, { command: 'delete:node', program: this.name, msg: `Failed to delete node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
@@ -58,7 +58,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'delete:node', program: this.name, msg: `Failed to delete node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
         })
 
-        return this.eventEmitter
+        
     }
 
     listNode(path: string, options: any) {
@@ -76,7 +76,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'list:node', program: this.name, msg: `Failed to list node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
         })
 
-        return this.eventEmitter
+        
     }
 
     listIndex(options: any) {
@@ -102,7 +102,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: ``, state: CommandState.FAILED } as CommandEvent)
         })
 
-        return this.eventEmitter
+        
     }
 
 }

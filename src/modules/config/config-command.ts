@@ -50,7 +50,7 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
         return program
     }
 
-    doInit(): BaseEvent {
+    doInit() {
         const homedir = os.homedir()
         if (!fs.existsSync(`${homedir}${path.sep}${CONFIG_FILE}`)) {
             fs.closeSync(fs.openSync(`${homedir}${path.sep}${CONFIG_FILE}`, 'w'))
@@ -59,10 +59,10 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             console.log(`The ${homedir}${path.sep}${CONFIG_FILE} file already exists nothing to do`)
         }
         this.eventEmitter.emit('config', {command: 'init', msg: 'Init completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        return this.eventEmitter
+        
     }
 
-    doView(): BaseEvent {
+    doView() {
         const table: Table = new Table({title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]`})
         const server: ServerInfo = CredentialLoader.get().get()
         for (let key of Object.keys(server)) {
@@ -73,13 +73,13 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
         
         table.printTable()
         this.eventEmitter.emit('config', {command: 'view', msg: 'View completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        return this.eventEmitter
+        
     }
 
-    doSet(serverUrl: string, serverAlias: string, username: string, password: string): BaseEvent {
+    doSet(serverUrl: string, serverAlias: string, username: string, password: string) {
         ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
         this.eventEmitter.emit('config', {command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        return this.eventEmitter
+        
     }
 
 }

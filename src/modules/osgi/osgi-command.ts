@@ -90,7 +90,7 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Failed to list components`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
     listConfigs() {
@@ -109,10 +109,10 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Failed to list configurations`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
-    stopBundle(bundlename: string): BaseEvent {
+    stopBundle(bundlename: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const form = new FormData();
@@ -130,10 +130,10 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to stop bundle ${bundlename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Failed to stop bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
-    startBundle(bundlename: string): BaseEvent {
+    startBundle(bundlename: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const form = new FormData();
@@ -151,10 +151,10 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to start bundle ${bundlename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Failed to start bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
-    installBundle(bundlepath: string): BaseEvent {
+    installBundle(bundlepath: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const form = new FormData();
@@ -175,10 +175,10 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to install bundle ${bundlepath} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Failed to install bundle ${bundlepath}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
-    uninstallBundle(bundlename: string): BaseEvent {
+    uninstallBundle(bundlename: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const form = new FormData();
@@ -196,11 +196,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to install bundle ${bundlename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Failed to uninstall bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
 
-    parseName(name: string): BaseEvent {
+    parseName(name: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
         httpclient.get({ serverInfo, path: '/system/console/bundles.json' as string }).then((response) => {
             const data = response.data
@@ -217,10 +217,10 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to parse bundle name in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'name:bundle', program: this.name, msg: 'Failed to parse bundle name', state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 
-    parseBundle(state: string): BaseEvent {
+    parseBundle(state: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
         httpclient.get({ serverInfo, path: '/system/console/bundles.json' as string }).then((response) => {
             const data = response.data
@@ -260,6 +260,6 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to parse bundle state in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'state:bundle', program: this.name, msg: 'Failed to parse bundle state', state: CommandState.FAILED } as CommandEvent)
         })
-        return this.eventEmitter
+        
     }
 }

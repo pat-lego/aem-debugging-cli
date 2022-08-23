@@ -70,7 +70,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
         return program
     }
 
-    analyzeErrorFile(file: string, level: string): BaseEvent {
+    analyzeErrorFile(file: string, level: string) {
         const server: ServerInfo = ConfigLoader.get().get()
 
         streamLogs.readLinesInFileSync({
@@ -91,10 +91,10 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             }
         })
 
-        return this.eventEmitter
+        
     }
 
-    analyzeErrorURL(level: string): BaseEvent {
+    analyzeErrorURL(level: string) {
         const server: ServerInfo = ConfigLoader.get().get()
 
         streamLogs.readLinesInURLSync({
@@ -115,10 +115,10 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             }
         }, {headers: { 'Authorization': `Basic ${server.auth}`}})
 
-        return this.eventEmitter
+        
     }
 
-    tailCustom(logger: string): BaseEvent {
+    tailCustom(logger: string) {
         const server: ServerInfo = ConfigLoader.get().get()
 
         let running = false
@@ -153,11 +153,11 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
 
         }, 1000)
 
-        return this.eventEmitter
+        
 
     }
 
-    tailError(): BaseEvent {
+    tailError() {
         const server: ServerInfo = ConfigLoader.get().get()
 
         let running = false
@@ -192,11 +192,11 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
 
         }, 1000)
 
-        return this.eventEmitter
+        
 
     }
 
-    analyzeRlogURL(options: any): BaseEvent {
+    analyzeRlogURL(options: any) {
         let sort = 'desc'
         let map = new Map<string, Rlog>()
         if (options.sort) {
@@ -262,10 +262,10 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
         }
 
         streamLogs.readLinesInURLSync(streamObj, {headers: { 'Authorization': `Basic ${serverInfo.auth}`}})
-        return this.eventEmitter
+        
     }
 
-    analyzeRlogFile(file: string, options: any): BaseEvent {
+    analyzeRlogFile(file: string, options: any) {
         let sort = 'desc'
         let map = new Map<string, Rlog>()
         if (options.sort) {
@@ -329,7 +329,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
         }
 
         streamLogs.readLinesInFileSync(streamObj)
-        return this.eventEmitter
+        
     }
 
     sortMap(a: [string, Rlog], b: [string, Rlog], order: string): number {
