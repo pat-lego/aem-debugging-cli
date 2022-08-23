@@ -31,6 +31,13 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 this.listNode(path, options)
             })
 
+        program.command('list:index')
+            .alias('li')
+            .option('-n, --name <value>', 'The index you are looking to view')
+            .action((options: any) => {
+                this.listIndex(options)
+            })
+
         return program
     }
 
@@ -54,10 +61,10 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
         return this.eventEmitter
     }
 
-    listNode(path: string, options:any) {
+    listNode(path: string, options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
-       
-        httpclient.get({ serverInfo: serverInfo, path: `${path}.${options.recursion}.json`}).then((response) => {
+
+        httpclient.get({ serverInfo: serverInfo, path: `${path}.${options.recursion}.json` }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
                 this.eventEmitter.emit(this.name, { command: 'list:node', program: this.name, msg: `Successfully list node at path ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
@@ -67,6 +74,32 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             }
         }).catch(() => {
             this.eventEmitter.emit(this.name, { command: 'list:node', program: this.name, msg: `Failed to list node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+        return this.eventEmitter
+    }
+
+    listIndex(options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.get({ serverInfo: serverInfo, path: `/oak:index.-1.json` }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                if (options.name) {
+                    for (const [key, value] of Object.entries(response.data)) {
+                        if (key === options.name) {
+                            console.log(response.data[key])
+                        }
+                    }
+                } else {
+                    console.log(response.data)
+                }
+                this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Successfully listed indexes`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to list the indexes with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch(() => {
+            this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: ``, state: CommandState.FAILED } as CommandEvent)
         })
 
         return this.eventEmitter
