@@ -5,6 +5,7 @@ import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import FormData from 'form-data'
+import fs from 'fs'
 
 export default class JcrCommands extends BaseCommand<BaseEvent> {
     name: string = 'jcr'
@@ -38,6 +39,19 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 this.listIndex(options)
             })
 
+        program.command('create:content')
+            .alias('cc')
+            .description("Please see the following documentation https://sling.apache.org/documentation/bundles/manipulating-content-the-slingpostservlet-servlets-post.html#importing-content-structures. Example payload \"{ \"jcr:primaryType\": \"nt:unstructured\", \"p1\" : \"p1Value\", \"child1\" : { \"childProp1\" : true } }\"")
+            .argument('<path>', 'The path to import the content')
+            .argument('<name>', 'The namee of the content')
+            .option('-i, --inline <string>', 'The JSON content you want to import')
+            .option('-f, --file <path>', 'The file path containing the JSON content')
+            .option('-r, --replace', 'Replace existing nodes', false)
+            .option('-p, --replace-properties', 'Replace existing properties', false)
+            .action((path: string, name: string, options: any) => {
+                this.importContent(path, name, options)
+            })
+
         return program
     }
 
@@ -49,7 +63,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo: serverInfo, path: path, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully removed ${path} node`)
-                
+
             } else {
                 console.log(`Failed to remove the node at path ${path} with error code ${response.status}`)
                 this.eventEmitter.emit(this.name, { command: 'delete:node', program: this.name, msg: `Failed to delete node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
@@ -58,7 +72,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'delete:node', program: this.name, msg: `Failed to delete node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
         })
 
-        
+
     }
 
     listNode(path: string, options: any) {
@@ -76,7 +90,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'list:node', program: this.name, msg: `Failed to list node at path ${path}`, state: CommandState.FAILED } as CommandEvent)
         })
 
-        
+
     }
 
     listIndex(options: any) {
@@ -99,10 +113,43 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes`, state: CommandState.FAILED } as CommandEvent)
             }
         }).catch(() => {
-            this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: ``, state: CommandState.FAILED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes in the repository`, state: CommandState.FAILED } as CommandEvent)
+        })
+    }
+
+    importContent(path: string, name: string, options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const formData = new FormData()
+        formData.append(':contentType', "json")
+        formData.append(':replace', `${options.replace}`)
+        formData.append(':replaceProperties', `${options.replaceProperties}`)
+        formData.append(':name', name)
+        formData.append(":operation", "import")
+
+        if (options.inline) {
+            formData.append(`:content`, `${options.inline}`)
+        } else if (options.file) {
+            formData.append(`:contentFile`, fs.createReadStream(options.file))
+        } else {
+            console.log('Please inline the data or provide a file as an option')
+            this.eventEmitter.emit(this.name, { command: 'create:content', program: this.name, msg: `Failed to import content into the repository`, state: CommandState.FAILED } as CommandEvent)
+            return
+        }
+
+        httpclient.post({ serverInfo: serverInfo, path: `${path}`, body: formData, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully created content at ${path}`)
+                this.eventEmitter.emit(this.name, { command: 'create:content', program: this.name, msg: `Successfully imported content into the repository`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to create content at path ${path} with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'create:content', program: this.name, msg: `Failed to import content into the repository`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch((e) => {
+            console.log(`Failed to create content at path ${path} with error code ${e}`)
+            this.eventEmitter.emit(this.name, { command: 'create:content', program: this.name, msg: `Failed to import content into the repository`, state: CommandState.FAILED } as CommandEvent)
         })
 
-        
     }
 
 }
