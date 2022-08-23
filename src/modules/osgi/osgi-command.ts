@@ -1,7 +1,7 @@
 import { Command } from "commander"
 import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
-import { ServerInfo } from "../config/authentication/server-authentication.js"
+import { Server, ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import fs from 'fs'
@@ -17,15 +17,15 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program: Command = new Command(this.name)
 
-        program.command('parse:state')
-            .alias('ps')
+        program.command('state:bundle')
+            .alias('sb')
             .argument('<state>', 'i (Installed) | a (Active) | r (Resolved) | A (All)')
             .action((state: string) => {
                 this.parseBundle(state)
             })
 
-        program.command('parse:name')
-            .alias('pn')
+        program.command('name:bundle')
+            .alias('nb')
             .argument('<name>', 'Retrieve the bundles that contain the provided name')
             .action((name: string) => {
                 this.parseName(name)
@@ -38,7 +38,6 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 this.installBundle(bundlepath)
             })
 
-
         program.command('uninstall:bundle')
             .alias('ub')
             .argument('<bundlename>', 'The symbolic name to the bundle you want to uninstall')
@@ -46,7 +45,57 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 this.uninstallBundle(bundlepath)
             })
 
+        program.command('list:components')
+            .alias('lcmp')
+            .action(() => {
+                this.listComponents()
+            })
+
+        program.command('list:configs')
+            .alias('lcnf')
+            .action(() => {
+                this.listConfigs()
+            })
+
         return program
+    }
+
+    listComponents() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.get({ serverInfo, path: '/system/console/components.json' }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data.data)
+            } else {
+                console.log(`Failed to retrieve the component json`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Successfully listed components`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
+            this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Failed to list components`, state: CommandState.FAILED } as CommandEvent)
+        })
+        return this.eventEmitter
+    }
+
+    listConfigs() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.get({ serverInfo, path: '/system/console/configMgr/*.json' }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data)
+            } else {
+                console.log(`Failed to retrieve the config json`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Successfully listed configurations`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
+            this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Failed to list configurations`, state: CommandState.FAILED } as CommandEvent)
+        })
+        return this.eventEmitter
     }
 
     installBundle(bundlepath: string): BaseEvent {
@@ -106,11 +155,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 }
             }
 
-            this.eventEmitter.emit(this.name, { command: 'parse:name', program: this.name, msg: 'Successfully parsed bundle name', state: CommandState.SUCCEEDED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'name:bundle', program: this.name, msg: 'Successfully parsed bundle name', state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to parse bundle name in the ${this.name} program`, e)
-            this.eventEmitter.emit(this.name, { command: 'parse:name', program: this.name, msg: 'Failed to parse bundle name', state: CommandState.FAILED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'name:bundle', program: this.name, msg: 'Failed to parse bundle name', state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
     }
@@ -149,11 +198,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
                 }
             }
 
-            this.eventEmitter.emit(this.name, { command: 'parse:state', program: this.name, msg: 'Successfully parsed bundle state', state: CommandState.SUCCEEDED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'state:bundle', program: this.name, msg: 'Successfully parsed bundle state', state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to parse bundle state in the ${this.name} program`, e)
-            this.eventEmitter.emit(this.name, { command: 'parse:state', program: this.name, msg: 'Failed to parse bundle state', state: CommandState.FAILED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'state:bundle', program: this.name, msg: 'Failed to parse bundle state', state: CommandState.FAILED } as CommandEvent)
         })
         return this.eventEmitter
     }

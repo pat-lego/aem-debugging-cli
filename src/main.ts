@@ -1,6 +1,12 @@
 import Commands from './commands.js'
 import { Command } from 'commander'
-import BaseEvent from './modules/base-event.js'
+import util from 'node:util'
+
+//Override maximum console.log output
+util.inspect.defaultOptions.maxArrayLength = null
+
+// Override maximum print depth to show all objects
+util.inspect.defaultOptions.depth = null
 
 const main = new Command()
 
