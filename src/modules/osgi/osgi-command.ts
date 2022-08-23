@@ -1,7 +1,7 @@
 import { Command } from "commander"
 import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
-import { Server, ServerInfo } from "../config/authentication/server-authentication.js"
+import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import fs from 'fs'
@@ -120,11 +120,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully stopped ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to stop ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Failed to stop bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'stop:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to stop bundle ${bundlename} in the ${this.name} program`, e)
@@ -141,11 +141,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully started ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to start ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Failed to start bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'start:bundle', program: this.name, msg: `Successfully installed bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to start bundle ${bundlename} in the ${this.name} program`, e)
@@ -165,11 +165,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: '/system/console/bundles' as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully installed ${bundlepath}`)
+                this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Successfully installed bundle ${bundlepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to install ${bundlepath}`)
+                this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Failed to install bundle ${bundlepath}`, state: CommandState.FAILED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'install:bundle', program: this.name, msg: `Successfully installed bundle ${bundlepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to install bundle ${bundlepath} in the ${this.name} program`, e)
@@ -186,11 +186,11 @@ export default class ParseCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: `/system/console/bundles/${bundlename}` as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully uninstalled ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Successfully uninstalled bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to uninstall ${bundlename}`)
+                this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Failed to uninstall bundle ${bundlename}`, state: CommandState.FAILED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'uninstall:bundle', program: this.name, msg: `Successfully uninstalled bundle ${bundlename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to install bundle ${bundlename} in the ${this.name} program`, e)

@@ -17,7 +17,6 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program: Command = new Command(this.name)
 
-
         program.command('install:package')
             .alias('ip')
             .argument('<packagename>', 'The name of the package')
