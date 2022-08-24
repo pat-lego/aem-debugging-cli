@@ -140,7 +140,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `/etc/workflow/instances`,
             body: `model=${modelId}&payloadType=JCR_PATH&payload=${jcrPath}`,
-
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully started workflow ${modelId}`)
@@ -161,9 +161,9 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
 
         httpclient.post({
             serverInfo: serverInfo,
-            path: `/etc/workflow/instances/${modelId}`,
+            path: `${modelId}`,
             body: `state=SUSPENDED`,
-
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully suspended workflow ${modelId}`)
@@ -185,9 +185,9 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
 
         httpclient.post({
             serverInfo: serverInfo,
-            path: `/etc/workflow/instances/${modelId}`,
+            path: `${modelId}`,
             body: `state=RUNNING`,
-
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully resumed workflow ${modelId}`)
@@ -209,7 +209,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
 
         httpclient.post({
             serverInfo: serverInfo,
-            path: `/etc/workflow/instances/${modelId}`,
+            path: `${modelId}`,
             body: `state=ABORTED`,
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 
