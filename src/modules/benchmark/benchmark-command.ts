@@ -75,7 +75,9 @@ export class BenchmarkCommand extends BaseCommand<BaseEvent> {
         if (headers) {
             for (const header of headers) {
                 const item: string[] = header.split('=')
-                result[item[0]] = item[1]
+                if (item.length == 2) {
+                    result[item[0]] = item[1]
+                }
             }
         }
 
