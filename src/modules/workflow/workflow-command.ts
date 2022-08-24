@@ -72,7 +72,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
 
         httpclient.get({
             serverInfo: serverInfo,
-            path: `/etc/workflow/instances.${options.status}.-1.json`,
+            path: `/etc/workflow/instances.${options.status}.json`,
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
@@ -211,6 +211,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `/etc/workflow/instances/${modelId}`,
             body: `state=ABORTED`,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {

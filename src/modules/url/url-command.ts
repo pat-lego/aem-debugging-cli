@@ -36,6 +36,14 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemLogin(options)
             })
 
+
+        program.command('system:maintenance')
+            .alias('smnt')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemMaintenance(options)
+            })
+
         program.command('system:components')
             .alias('sm')
             .option("-o, --open")
@@ -610,11 +618,28 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         }
     }
 
+    systemMaintenance(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/libs/granite/operations/content/maintenance.html`)
+            } else {
+                console.log(`${server.serverUrl}/libs/granite/operations/content/maintenance.html`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:maintenance', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:maintenance', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
     systemLogin(options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
-                open(`${server.serverUrl}/libs/granite/core/content/login.html`)
+                open(`${server.serverUrl}/libs/granite/core/content/login.html` )
             } else {
                 console.log(`${server.serverUrl}/libs/granite/core/content/login.html`)
             }
