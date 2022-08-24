@@ -7,6 +7,7 @@ import CRXCommand from "./modules/crx/crx-command.js"
 import JcrCommands from "./modules/jcr/jcr-command.js"
 import DispatcherCommand from "./modules/dispatcher/dispatcher-command.js"
 import { BenchmarkCommand } from "./modules/benchmark/benchmark-command.js"
+import WorkflowCommand from "./modules/workflow/workflow-command.js"
 
 const baseEvent: BaseEvent = new BaseEvent()
 
@@ -17,6 +18,7 @@ new ParseCommand(baseEvent),
 new CRXCommand(baseEvent),
 new JcrCommands(baseEvent),
 new DispatcherCommand(baseEvent),
-new BenchmarkCommand(baseEvent)]
+new BenchmarkCommand(baseEvent),
+new WorkflowCommand(baseEvent)]
 
 export default Commmands

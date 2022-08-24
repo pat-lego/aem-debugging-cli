@@ -16,7 +16,7 @@ interface ICommand {
 
 export default abstract class BaseCommand<T extends EventEmitter> implements ICommand {
 
-    public eventEmitter: T
+    public readonly eventEmitter: T
 
     constructor(eventEmitter: T) {
         this.eventEmitter = eventEmitter
