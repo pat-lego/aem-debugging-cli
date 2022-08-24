@@ -64,6 +64,12 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
                 this.terminateWorkflow(modelId)
             })
 
+        program.command('list:workitems')
+            .alias('lw')
+            .action(() => {
+                this.listWorkItems()
+            })
+
         return program
     }
 
@@ -111,6 +117,28 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
 
     }
 
+    listWorkItems() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.get({
+            serverInfo: serverInfo,
+            path: `/bin/workflow/inbox`,
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data)
+                this.eventEmitter.emit(this.name, { command: 'list:workitems', msg: `Succesfully listed the work items`, program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to list work items due to the following http code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'list:workitems', msg: `Failed to list work items due to the following http code ${response.status}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+            }
+
+        }).catch((error) => {
+            console.log(`Failed to list work items due to the following error ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'list:workitems', msg: `Failed to list work items due to the following error ${error}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+        })
+
+    }
+
     listModel(modelid: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
@@ -140,7 +168,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `/etc/workflow/instances`,
             body: `model=${modelId}&payloadType=JCR_PATH&payload=${jcrPath}`,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully started workflow ${modelId}`)
@@ -163,7 +191,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `${modelId}`,
             body: `state=SUSPENDED`,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully suspended workflow ${modelId}`)
@@ -187,7 +215,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `${modelId}`,
             body: `state=RUNNING`,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully resumed workflow ${modelId}`)
@@ -211,7 +239,7 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             serverInfo: serverInfo,
             path: `${modelId}`,
             body: `state=ABORTED`,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
 
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
