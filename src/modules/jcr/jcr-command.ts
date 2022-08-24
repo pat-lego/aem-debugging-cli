@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import { ServerInfo } from "../config/authentication/server-authentication.js"
@@ -45,7 +45,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             .argument('<path>', 'The path to import the content')
             .argument('<name>', 'The namee of the content')
             .option('-i, --inline <string>', 'The JSON content you want to import')
-            .option('-f, --file <path>', 'The file path containing the JSON content')
+            .addOption(new Option('-f, --file <path>', 'The file path containing the JSON content').conflicts('inline'))
             .option('-r, --replace', 'Replace existing nodes', false)
             .option('-p, --replace-properties', 'Replace existing properties', false)
             .action((path: string, name: string, options: any) => {
