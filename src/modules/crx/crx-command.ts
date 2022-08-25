@@ -6,6 +6,7 @@ import ConfigLoader from "../config/config-loader.js"
 import fs from 'fs'
 import FormData from 'form-data'
 import httpclient from '../../utils/http.js'
+import OSGiCommand from "../osgi/osgi-command.js"
 
 export default class CRXCommand extends BaseCommand<BaseEvent> {
     name: string = 'crx'
@@ -47,13 +48,90 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
                 this.listCrxPackage()
             })
 
+        program.command('enable:crx')
+            .alias('ec')
+            .action(() => {
+                this.enableCrx()
+            })
+
+        program.command('disable:crx')
+            .alias('dc')
+            .action(() => {
+                this.disableCrx()
+            })
+
         return program
+    }
+
+    enableCrx() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const formData = new FormData()
+        formData.append('jcr:primaryType', 'sling:OsgiConfig')
+        formData.append('alias', '/crx/server')
+        formData.append('dav.create-absolute-uri', 'true')
+        formData.append('dav.create-absolute-uri@TypeHint', 'Boolean')
+
+        httpclient.post({
+            serverInfo, path: `/apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet
+        ` as string, body: formData, headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log('Successfully enabled the CRX/DE')
+            } else {
+                console.log(`Failed to enable the CRX/DE received a ${response.status}`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'enable:crx', program: this.name, msg: `Successfully enabled the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to enable the CRX/DE in the ${this.name} program`, e)
+            this.eventEmitter.emit(this.name, { command: 'enable:crx', program: this.name, msg: `Failed to enable the CRX/DE`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+        const osgiCommand: OSGiCommand = new OSGiCommand(this.eventEmitter)
+        osgiCommand.startBundle('com.adobe.granite.crx-explorer')
+        osgiCommand.startBundle('com.adobe.granite.crxde-lite')
+        osgiCommand.startBundle('org.apache.sling.jcr.davex')
+        osgiCommand.startBundle('org.apache.sling.jcr.webdav')
+
+    }
+
+    disableCrx() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const formData = new FormData()
+        formData.append(':operation', 'delete')
+
+        httpclient.post({
+            serverInfo: serverInfo, path: `/apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet
+        ` as string, body: formData, headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log('Successfully deleted the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE')
+            } else {
+                console.log(`Failed to delete the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet config from the CRX/DE received a ${response.status}`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'disable:crx', program: this.name, msg: `Successfully deleted the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        }).catch((e: Error) => {
+            console.error(`Caught errror ${e.message} when trying to delete teh /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE in the ${this.name} program - this is most likely because the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet config is not present`, e)
+            this.eventEmitter.emit(this.name, { command: 'disable:crx', program: this.name, msg: `Failed to delete the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+        const osgiCommand: OSGiCommand = new OSGiCommand(this.eventEmitter)
+        osgiCommand.stopBundle('com.adobe.granite.crx-explorer')
+        osgiCommand.stopBundle('com.adobe.granite.crxde-lite')
+        osgiCommand.stopBundle('org.apache.sling.jcr.davex')
+        osgiCommand.stopBundle('org.apache.sling.jcr.webdav')
+
     }
 
     listCrxPackage() {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
-        httpclient.get({ serverInfo, path: `/crx/packmgr/list.jsp` as string, params: {cmd: "ls"} }).then((response) => {
+        httpclient.get({ serverInfo, path: `/crx/packmgr/list.jsp` as string, params: { cmd: "ls" } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
             } else {
@@ -66,7 +144,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to list all packages in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Failed to list all packages`, state: CommandState.FAILED } as CommandEvent)
         })
-        
+
     }
 
     uninstallCrxPackage(packagename: string, groupname: string) {
@@ -87,7 +165,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to uninstall package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Failed to uninstall package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        
+
     }
 
     deleteCrxPackage(packagename: string, groupname: string) {
@@ -108,7 +186,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to delete package ${packagename} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Failed to delete package ${packagename}`, state: CommandState.FAILED } as CommandEvent)
         })
-        
+
     }
 
     installCrxPackage(packagename: string, packagepath: string) {
@@ -132,7 +210,7 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
             console.error(`Caught errror ${e.message} when trying to install package ${packagepath} in the ${this.name} program`, e)
             this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Failed to install package ${packagepath}`, state: CommandState.FAILED } as CommandEvent)
         })
-        
+
     }
 
 }

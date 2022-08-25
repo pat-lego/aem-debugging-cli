@@ -7,7 +7,7 @@ import httpclient from '../../utils/http.js'
 import fs from 'fs'
 import FormData from 'form-data'
 
-export default class ParseCommand extends BaseCommand<BaseEvent> {
+export default class OSGiCommand extends BaseCommand<BaseEvent> {
     name: string = 'osgi'
 
     constructor(eventEmitter: BaseEvent) {
