@@ -74,6 +74,12 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 this.execDataStoreGarbageCollection(options)
             })
 
+        program.command('exec:revision-cleanup')
+            .alias('erc')
+           .action(() => {
+                this.execRevisionCleanup()
+            })
+
         return program
     }
 
@@ -99,7 +105,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
 
     execQuery(queryParams: string[]) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
-   
+
         httpclient.get({ serverInfo: serverInfo, path: `/bin/querybuilder.json`, params: this.convertParams(queryParams) }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
@@ -118,8 +124,8 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
 
     execDataStoreGarbageCollection(options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
-    
-        httpclient.post({ serverInfo: serverInfo, path: `/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3Drepository+manager%2Ctype%3DRepositoryManagement/op/startDataStoreGC/boolean`, body: `markOnly=${options.markOnly}`, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).then((response) => {
+
+        httpclient.post({ serverInfo: serverInfo, path: `/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3Drepository+manager%2Ctype%3DRepositoryManagement/op/startDataStoreGC/boolean`, body: `markOnly=${options.markOnly}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully executed the DSGC call`)
                 this.eventEmitter.emit(this.name, { command: 'exec:datastore-garbagecollection', program: this.name, msg: `Successfully executed the DSGC call`, state: CommandState.SUCCEEDED } as CommandEvent)
@@ -130,6 +136,25 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
         }).catch((error) => {
             console.error(`Failed to execute the DSGC call with error  ${error}`)
             this.eventEmitter.emit(this.name, { command: 'exec:datastore-garbagecollection', program: this.name, msg: `Failed to execute the DSGC call with error  ${error}`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+
+    }
+
+    execRevisionCleanup() {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.post({ serverInfo: serverInfo, path: `/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3Drepository+manager%2Ctype%3DRepositoryManagement/op/startRevisionGC/`,body: {}, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully executed the revision cleanup call`)
+                this.eventEmitter.emit(this.name, { command: 'exec:revision-cleanup', program: this.name, msg: `Successfully executed the revision cleanup call`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to execute the revision cleanup call with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'exec:revision-cleanup', program: this.name, msg: `Failed to execute the revision cleanup call with error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch((error) => {
+            console.error(`Failed to execute the revision cleanup call with error  ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'exec:revision-cleanup', program: this.name, msg: `Failed to execute the revision cleanup call with error  ${error}`, state: CommandState.FAILED } as CommandEvent)
         })
 
 
