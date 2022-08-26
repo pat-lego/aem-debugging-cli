@@ -143,6 +143,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemSlingEvents(options)
             })
 
+        program.command('system:sling-auth')
+            .alias('sla')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemSlingAuth(options)
+            })
+
         program.command('system:depfinder')
             .alias('sdfp')
             .option("-o, --open")
@@ -574,6 +581,25 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'system:sling-events', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
             this.eventEmitter.emit(this.name, { command: 'system:sling-events', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+
+
+    }
+
+    systemSlingAuth(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/slingauth`)
+            } else {
+                console.log(`${server.serverUrl}/system/console/slingauth`)
+            }
+
+
+            this.eventEmitter.emit(this.name, { command: 'system:sling-auth', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:sling-auth', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
 
