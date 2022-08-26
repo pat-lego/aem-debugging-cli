@@ -10,6 +10,10 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
 
     private retryDelay: number = 6000
 
+    constructor(eventEmitter: BaseEvent) {
+        super(eventEmitter)
+    }
+
     parse(): Command {
         const program = new Command(this.name)
 
