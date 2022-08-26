@@ -73,6 +73,48 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemVersion(options)
             })
 
+        program.command('system:search')
+            .alias('srch')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemSearch(options)
+            })
+
+        program.command('system:tag-admin')
+            .alias('stadm')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemTagAdmin(options)
+            })
+
+        program.command('system:tag-admin')
+            .alias('srch')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemSearch(options)
+            })
+
+        program.command('system:namespace-editor')
+            .alias('srch')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemNameSpaceEditor(options)
+            })
+
+        program.command('system:query-debug')
+            .alias('sqdb')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemQueryDebug(options)
+            })
+
+        program.command('system:profiler')
+            .alias('sprfl')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemProfiler(options)
+            })
+
         program.command('system:requests')
             .alias('sr')
             .option("-o, --open")
@@ -99,6 +141,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             .option("-o, --open")
             .action((options) => {
                 this.systemSlingEvents(options)
+            })
+
+        program.command('system:depfinder')
+            .alias('sdfp')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemDepFinder(options)
             })
 
         program.command('system:jmx')
@@ -149,6 +198,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             .option("-o, --open")
             .action((options) => {
                 this.systemMemoryUsage(options)
+            })
+
+        program.command('system:nodetypes')
+            .alias('sntp')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemNodeTypes(options)
             })
 
         program.command('system:jstack-threads')
@@ -250,7 +306,6 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
         }
 
-
     }
 
 
@@ -326,7 +381,6 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
     }
 
-
     systemSlingScheduler(options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
@@ -393,6 +447,24 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'system:memoryusage', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
             this.eventEmitter.emit(this.name, { command: 'system:memoryusage', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+
+
+    }
+
+    systemNodeTypes(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/crx/explorer/nodetypes/index.jsp`)
+            } else {
+                console.log(`${server.serverUrl}/crx/explorer/nodetypes/index.jsp`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:nodetypes', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:nodetypes', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
 
@@ -508,6 +580,26 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
     }
 
+
+    systemDepFinder(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/depfinder`)
+            } else {
+                console.log(`${server.serverUrl}/system/console/depfinder`)
+            }
+
+
+            this.eventEmitter.emit(this.name, { command: 'system:depfinder', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:depfinder', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+
+
+    }
+
     systemOsgiEvents(options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
@@ -578,9 +670,91 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'system:version', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
+    }
 
+    systemSearch(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/crx/explorer/ui/search.jsp`)
+            } else {
+                console.log(`${server.serverUrl}/crx/explorer/ui/search.jsp`)
+            }
 
+            this.eventEmitter.emit(this.name, { command: 'system:search', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
 
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:search', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
+    systemTagAdmin(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/libs/cq/tagging/content/debug.html`)
+            } else {
+                console.log(`${server.serverUrl}/libs/cq/tagging/content/debug.html`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:tag-admin', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:tag-admin', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
+    systemNameSpaceEditor(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/crx/explorer/ui/namespace_editor.jsp`)
+            } else {
+                console.log(`${server.serverUrl}/crx/explorer/ui/namespace_editor.jsp`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:namespace-editor', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:namespace-editor', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
+    systemQueryDebug(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/libs/cq/search/content/querydebug.html`)
+            } else {
+                console.log(`${server.serverUrl}/libs/cq/search/content/querydebug.html`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:query-debug', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:query-debug', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
+    systemProfiler(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/profiler`)
+            } else {
+                console.log(`${server.serverUrl}/system/console/profiler`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:profiler', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:profiler', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
     }
 
     systemBundles(options: any) {
@@ -639,7 +813,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
-                open(`${server.serverUrl}/libs/granite/core/content/login.html` )
+                open(`${server.serverUrl}/libs/granite/core/content/login.html`)
             } else {
                 console.log(`${server.serverUrl}/libs/granite/core/content/login.html`)
             }

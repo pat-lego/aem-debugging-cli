@@ -39,6 +39,13 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 this.listIndex(options)
             })
 
+        program.command('reindex:index')
+            .alias('ri')
+            .addOption(new Option('-n, --name <value>', 'The index you are reindex to view').makeOptionMandatory(true))
+            .action((options: any) => {
+                this.reindexIndex(options)
+            })
+
         program.command('create:content')
             .alias('cc')
             .description("Please see the following documentation https://sling.apache.org/documentation/bundles/manipulating-content-the-slingpostservlet-servlets-post.html#importing-content-structures. Example payload \"{ \"jcr:primaryType\": \"nt:unstructured\", \"p1\" : \"p1Value\", \"child1\" : { \"childProp1\" : true } }\"")
@@ -50,6 +57,13 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             .option('-p, --replace-properties', 'Replace existing properties', false)
             .action((path: string, name: string, options: any) => {
                 this.importContent(path, name, options)
+            })
+
+        program.command('exec:query')
+            .description('Please see https://github.com/paulrohrbeck/aem-links/blob/master/querybuilder_cheatsheet.md for more help')
+            .argument('<queryParams...>', 'The parameters to pass for the querybuilder endpoint')
+            .action((queryParams: string[]) => {
+                this.execQuery(queryParams)
             })
 
         return program
@@ -73,6 +87,38 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
         })
 
 
+    }
+
+    execQuery(queryParams: string[]) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+        const params: {[key:string]: string} = {}
+    
+        httpclient.get({ serverInfo: serverInfo, path: `/bin/querybuilder.json`, params: this.convertParams(queryParams) }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data)
+                this.eventEmitter.emit(this.name, { command: 'exec:query', program: this.name, msg: `Successfully executed the query builder json call`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to execute the query builder json call with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'exec:query', program: this.name, msg: `Failed to execute the query builder json call with error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch((error) => {
+            console.error(`Failed to execute the query builder json call with error ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'exec:query', program: this.name, msg: `Failed to execute the query builder json call with error ${error}`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+
+    }
+
+    convertParams(params: string[]) : {[key: string]: string} {
+        const result: {[key: string]: string} = {}
+        for (const param of params) {
+            const paramSplit: string[] = param.split('=')
+            if (paramSplit.length == 2) {
+                result[paramSplit[0]] = paramSplit[1]
+            }
+        }
+
+        return result
     }
 
     listNode(path: string, options: any) {
@@ -112,8 +158,28 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
                 console.log(`Failed to list the indexes with error code ${response.status}`)
                 this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes`, state: CommandState.FAILED } as CommandEvent)
             }
-        }).catch(() => {
-            this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes in the repository`, state: CommandState.FAILED } as CommandEvent)
+        }).catch((error) => {
+            console.log(`Failed to list the indexes in the repository with error ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'list:index', program: this.name, msg: `Failed to list the indexes in the repository with error ${error}`, state: CommandState.FAILED } as CommandEvent)
+        })
+    }
+
+    reindexIndex(options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+        const formData = new FormData()
+        formData.append('./reindex', 'true')
+
+        httpclient.post({ serverInfo: serverInfo, path: `/oak:index/${options.name}`, body: formData }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully reindexed the ${options.name} index`)
+                this.eventEmitter.emit(this.name, { command: 'reindex:index', program: this.name, msg: `Successfully reindexed the ${options.name} index`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to reindex the index ${options.name} with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'reindex:index', program: this.name, msg: `Failed to reindex the index ${options.name} with error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch((error) => {
+            console.log(`Failed to reindex the index ${options.name} with error code ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'reindex:index', program: this.name, msg: `Failed to reindex the index ${options.name} with error code ${error}`, state: CommandState.FAILED } as CommandEvent)
         })
     }
 
