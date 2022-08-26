@@ -1,4 +1,4 @@
-import { Command, Option } from "commander";
+import { Argument, Command, Option } from "commander";
 import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import { ServerInfo } from "../config/authentication/server-authentication.js"
@@ -61,9 +61,17 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
 
         program.command('exec:query')
             .description('Please see https://github.com/paulrohrbeck/aem-links/blob/master/querybuilder_cheatsheet.md for more help')
+            .alias('ex')
             .argument('<queryParams...>', 'The parameters to pass for the querybuilder endpoint')
             .action((queryParams: string[]) => {
                 this.execQuery(queryParams)
+            })
+
+        program.command('exec:datastore-garbagecollection')
+            .alias('edsgc')
+            .addOption(new Option('-m, --mark-only <value>', 'Wether or not to mark only when doing the DSGC').default('true').choices(['true', 'false']))
+            .action((options: any) => {
+                this.execDataStoreGarbageCollection(options)
             })
 
         return program
@@ -91,8 +99,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
 
     execQuery(queryParams: string[]) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
-        const params: {[key:string]: string} = {}
-    
+   
         httpclient.get({ serverInfo: serverInfo, path: `/bin/querybuilder.json`, params: this.convertParams(queryParams) }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
@@ -109,8 +116,27 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
 
     }
 
-    convertParams(params: string[]) : {[key: string]: string} {
-        const result: {[key: string]: string} = {}
+    execDataStoreGarbageCollection(options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+    
+        httpclient.post({ serverInfo: serverInfo, path: `/system/console/jmx/org.apache.jackrabbit.oak%3Aname%3Drepository+manager%2Ctype%3DRepositoryManagement/op/startDataStoreGC/boolean`, body: `markOnly=${options.markOnly}`, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully executed the DSGC call`)
+                this.eventEmitter.emit(this.name, { command: 'exec:datastore-garbagecollection', program: this.name, msg: `Successfully executed the DSGC call`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to execute the DSGC call with error code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'exec:datastore-garbagecollection', program: this.name, msg: `Failed to execute the DSGC call with error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+            }
+        }).catch((error) => {
+            console.error(`Failed to execute the DSGC call with error  ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'exec:datastore-garbagecollection', program: this.name, msg: `Failed to execute the DSGC call with error  ${error}`, state: CommandState.FAILED } as CommandEvent)
+        })
+
+
+    }
+
+    convertParams(params: string[]): { [key: string]: string } {
+        const result: { [key: string]: string } = {}
         for (const param of params) {
             const paramSplit: string[] = param.split('=')
             if (paramSplit.length == 2) {
