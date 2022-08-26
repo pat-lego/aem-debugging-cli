@@ -8,6 +8,7 @@ import DispatcherCommand from "./modules/dispatcher/dispatcher-command.js"
 import { BenchmarkCommand } from "./modules/benchmark/benchmark-command.js"
 import WorkflowCommand from "./modules/workflow/workflow-command.js"
 import OSGiCommand from "./modules/osgi/osgi-command.js"
+import ReplicationCommand from "./modules/replication/replication-command.js"
 
 const baseEvent: BaseEvent = new BaseEvent()
 
@@ -19,6 +20,7 @@ new CRXCommand(baseEvent),
 new JcrCommands(baseEvent),
 new DispatcherCommand(baseEvent),
 new BenchmarkCommand(baseEvent),
-new WorkflowCommand(baseEvent)]
+new WorkflowCommand(baseEvent),
+new ReplicationCommand(baseEvent)]
 
 export default Commmands

@@ -80,11 +80,11 @@ export default class OSGiCommand extends BaseCommand<BaseEvent> {
         httpclient.get({ serverInfo, path: '/system/console/components.json' }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data.data)
+                this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Successfully listed components`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to retrieve the component json`)
+                this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Failed to list components`, state: CommandState.FAILED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'list:components', program: this.name, msg: `Successfully listed components`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
@@ -99,11 +99,12 @@ export default class OSGiCommand extends BaseCommand<BaseEvent> {
         httpclient.get({ serverInfo, path: '/system/console/configMgr/*.json' }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
+                this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Successfully listed configurations`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to retrieve the config json`)
+                this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Failed to list configurations`, state: CommandState.FAILED } as CommandEvent)
             }
 
-            this.eventEmitter.emit(this.name, { command: 'list:configs', program: this.name, msg: `Successfully listed configurations`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to list components in the ${this.name} program`, e)
