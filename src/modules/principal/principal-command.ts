@@ -48,7 +48,7 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
 
     appendOptionsForCreateUser(formData: FormData, profile: string[]): FormData {
         if (profile) {
-            for(const option in profile) {
+            for(const option of profile) {
                 const anOption: string[] = option.split('=')
 
                 if (anOption.length === 2) {
