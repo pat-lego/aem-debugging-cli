@@ -51,7 +51,7 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
             for(const option in profile) {
                 const anOption: string[] = option.split('=')
 
-                if (anOption.length == 2) {
+                if (anOption.length === 2) {
                     formData.append(`profile/${anOption[0]}`, anOption[1])
                 }
             }
