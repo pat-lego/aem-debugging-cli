@@ -1,4 +1,5 @@
 import { Command, Option } from "commander"
+import FormData from 'form-data'
 
 import BaseCommand from "../base-command.js"
 import BaseEvent from "../base-event.js"
@@ -22,21 +23,21 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
             .argument('<authorizableId>', 'The ID of the user')
             .argument('<password>', 'The users password')
             .addOption(new Option('-p, --profile <args...>', 'A lit of arguments that will represent properties in the profile, example: age=25'))
-            .action((username: string, authorizableId: string, password: string, options: string[]) => {
+            .action((username: string, authorizableId: string, password: string, options: any) => {
                 this.createUser(username, authorizableId, password, options)
             })
         return program
     }
 
-    createUser(username: string, authorizableId: string, password: string, options: string[]) {
+    createUser(username: string, authorizableId: string, password: string, options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
         
-        let formData = new window.FormData()
+        let formData = new FormData()
         formData.append('createUser', username)
         formData.append('authorizableId', authorizableId)
         formData.append('rep:password', password)
 
-        formData = this.appendOptionsForCreateUser(formData, options)
+        formData = this.appendOptionsForCreateUser(formData, options.profile)
 
         httpclient.post({serverInfo: serverInfo, path: '/libs/granite/security/post/authorizables', body: formData, headers: {'Content-Type': 'multipart/form-data'}}).then((response) => {
             console.log(response.data)
@@ -45,9 +46,9 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
         })
     }
 
-    appendOptionsForCreateUser(formData: FormData, options: string[]): FormData {
-        if (options) {
-            for(const option in options) {
+    appendOptionsForCreateUser(formData: FormData, profile: string[]): FormData {
+        if (profile) {
+            for(const option in profile) {
                 const anOption: string[] = option.split('=')
 
                 if (anOption.length == 2) {
