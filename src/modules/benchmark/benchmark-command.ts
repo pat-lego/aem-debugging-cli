@@ -5,7 +5,7 @@ import BaseCommand from "../base-command.js"
 import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 
 
-export class BenchmarkCommand extends BaseCommand<BaseEvent> {
+export default class BenchmarkCommand extends BaseCommand<BaseEvent> {
     name: string = 'benchmark'
     private maxRequests = '100'
     private timeout = undefined
