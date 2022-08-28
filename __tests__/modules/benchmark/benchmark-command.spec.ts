@@ -1,5 +1,5 @@
 import BaseEvent from "../../../src/modules/base-event.js"
-import { BenchmarkCommand } from '../../../src/modules/benchmark/benchmark-command.js'
+import BenchmarkCommand from '../../../src/modules/benchmark/benchmark-command.js'
 
 describe('Test the header parser in the benchmark command', () => {
     test('Parser headers with values', () => {
