@@ -6,6 +6,7 @@ import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import httpclient from '../../utils/http.js'
 import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
+import constants from './constants.js'
 
 export default class PrincipalCommand extends BaseCommand<BaseEvent> {
     name: string = 'principal'
@@ -46,8 +47,15 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
 
         httpclient.post({ serverInfo: serverInfo, path: '/libs/granite/security/post/authorizables', body: formData, headers: { 'Content-Type': 'multipart/form-data' } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(response.data)
-                this.eventEmitter.emit(this.name, { command: 'create:group', program: this.name, msg: `Successfully create group with name ${name}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                if (constants.PRINCIPAL_PATH.test(response.data)) {
+                    const match = constants.PRINCIPAL_PATH.exec(response.data)
+                    console.log(`Successfully create user with name ${name} at path ${match![1]}`)
+                    this.eventEmitter.emit(this.name, { command: 'create:user', program: this.name, msg: `Successfully create user with name ${name} at path ${match![1]}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(response.data)
+                    this.eventEmitter.emit(this.name, { command: 'create:group', program: this.name, msg: `Successfully create group with name ${name}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                }
+
             } else {
                 console.log(`Failed to create group with name ${name} with http error code ${response.status}`)
                 this.eventEmitter.emit(this.name, { command: 'create:group', program: this.name, msg: `Failed to create group with name ${name} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
@@ -70,8 +78,15 @@ export default class PrincipalCommand extends BaseCommand<BaseEvent> {
 
         httpclient.post({ serverInfo: serverInfo, path: '/libs/granite/security/post/authorizables', body: formData, headers: { 'Content-Type': 'multipart/form-data' } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-                console.log(response.data)
-                this.eventEmitter.emit(this.name, { command: 'create:user', program: this.name, msg: `Successfully create user with name ${username}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                if (constants.PRINCIPAL_PATH.test(response.data)) {
+                    const match = constants.PRINCIPAL_PATH.exec(response.data)
+                    console.log(`Successfully create user with name ${username} at path ${match![1]}`)
+                    this.eventEmitter.emit(this.name, { command: 'create:user', program: this.name, msg: `Successfully create user with name ${username} at path ${match![1]}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(response.data)
+                    this.eventEmitter.emit(this.name, { command: 'create:user', program: this.name, msg: `Successfully create user with name ${username}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                }
+
             } else {
                 console.log(`Failed to create user with name ${username} with http error code ${response.status}`)
                 this.eventEmitter.emit(this.name, { command: 'create:user', program: this.name, msg: `Failed to create user with name ${username} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
