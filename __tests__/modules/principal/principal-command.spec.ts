@@ -14,4 +14,12 @@ describe('Test Principal Command', () => {
         expect(payload).toContain('profile/age')
         expect(payload).toContain('username')
     })
+
+    test('Group remove', () => {
+        const baseEvent: BaseEvent = new BaseEvent()
+        const principalCommand: PrincipalCommand =  new PrincipalCommand(baseEvent)
+        const data = principalCommand.removeGroup(['grp1', 'grp2', 'everyone'], 'everyone')
+        expect(data).not.toContain('everyone')
+        expect(data).toContain('grp1')
+    })
 })
