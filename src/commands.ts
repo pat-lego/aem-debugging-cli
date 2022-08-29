@@ -11,6 +11,7 @@ import OSGiCommand from "./modules/osgi/osgi-command.js"
 import ReplicationCommand from "./modules/replication/replication-command.js"
 import ReferencesCommand from "./modules/references/references-command.js"
 import PrincipalCommand from "./modules/principal/principal-command.js"
+import SitesCommands from "./modules/sites/sites-command.js"
 
 const baseEvent: BaseEvent = new BaseEvent()
 
@@ -25,6 +26,7 @@ new BenchmarkCommand(baseEvent),
 new WorkflowCommand(baseEvent),
 new ReplicationCommand(baseEvent),
 new ReferencesCommand(baseEvent),
-new PrincipalCommand(baseEvent)]
+new PrincipalCommand(baseEvent),
+new SitesCommands(baseEvent)]
 
 export default Commmands
