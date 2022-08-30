@@ -70,6 +70,13 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
                 this.agentCreate(instance, agent, publishUri, username, password, options)
             })
 
+        program.command('list:ref')
+            .alias('lr')
+            .argument('<path>', 'The path to replicate in which you want to see the references it has to replicate')
+            .action((path: string) => {
+                this.listReferences(path)
+            })
+
         program.command('agent:activate')
             .alias('aa')
             .argument('<path>', 'The path to replicate')
@@ -154,6 +161,27 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
             })
     }
 
+
+    listReferences(path: string) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const formData = new FormData()
+        formData.append('path', `${path}`)
+
+        httpclient.post({ serverInfo: serverInfo, path: `/libs/wcm/core/content/reference.json`, body: formData, headers: {'Content-Type': 'multipart/form-data'}})
+            .then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    console.log(response.data)
+                    this.eventEmitter.emit(this.name, { command: 'list:ref', program: this.name, msg: `Successfully listed referneces for the content at path ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(`Failed to list referneces for the content at path ${path} with http error code ${response.status}`)
+                    this.eventEmitter.emit(this.name, { command: 'list:ref', program: this.name, msg: `Failed to list referneces for the content at path ${path}with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                }
+            }).catch((error) => {
+                console.error(`Failed to list referneces for the content at path ${path} due to the following error ${error}`)
+                this.eventEmitter.emit(this.name, { command: 'list:ref', program: this.name, msg: `Failed to list referneces for the content at path ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+            })
+    }
 
     agentActivate(path: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
