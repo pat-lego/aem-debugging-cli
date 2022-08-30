@@ -5,8 +5,8 @@ import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import FormData from 'form-data'
-export default class ReplicationCommand extends BaseCommand<BaseEvent> {
-    name: string = 'replication'
+export default class DistributionCommand extends BaseCommand<BaseEvent> {
+    name: string = 'distribution'
 
     private retryDelay: number = 6000
 
