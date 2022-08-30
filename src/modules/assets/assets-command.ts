@@ -110,7 +110,7 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
         const headers: { [key: string]: string } = {
             'X-Depth': options.depth,
             'X-Overwrite': options.overwrite,
-            'X-Destination': new URL(newpath).toString()
+            'X-Destination': newpath
         }
 
         httpclient.move({ serverInfo: serverInfo, path: `/api/assets/${oldpath}`, headers: headers }).then((response) => {
@@ -137,7 +137,7 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
         const headers: { [key: string]: string } = {
             'X-Depth': options.depth,
             'X-Overwrite': options.overwrite,
-            'X-Destination': new URL(newpath).toString()
+            'X-Destination': newpath
         }
 
         httpclient.copy({ serverInfo: serverInfo, path: `/api/assets/${oldpath}`, headers: headers }).then((response) => {
