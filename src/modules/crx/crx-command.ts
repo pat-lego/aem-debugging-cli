@@ -78,11 +78,14 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log('Successfully enabled the CRX/DE')
+
+                this.eventEmitter.emit(this.name, { command: 'enable:crx', program: this.name, msg: `Successfully enabled the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to enable the CRX/DE received a ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'enable:crx', program: this.name, msg: `Failed to enable the CRX/DE received a ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
             }
 
-            this.eventEmitter.emit(this.name, { command: 'enable:crx', program: this.name, msg: `Successfully enabled the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to enable the CRX/DE in the ${this.name} program`, e)
@@ -109,11 +112,13 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log('Successfully deleted the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE')
+
+                this.eventEmitter.emit(this.name, { command: 'disable:crx', program: this.name, msg: `Successfully deleted the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to delete the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet config from the CRX/DE received a ${response.status}`)
-            }
 
-            this.eventEmitter.emit(this.name, { command: 'disable:crx', program: this.name, msg: `Successfully deleted the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE`, state: CommandState.SUCCEEDED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'disable:crx', program: this.name, msg: `Failed to delete the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet config from the CRX/DE received a ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            }
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to delete teh /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet from the CRX/DE in the ${this.name} program - this is most likely because the /apps/system/config/org.apache.sling.jcr.davex.impl.servlets.SlingDavExServlet config is not present`, e)
@@ -134,11 +139,14 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         httpclient.get({ serverInfo, path: `/crx/packmgr/list.jsp` as string, params: { cmd: "ls" } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
+
+                this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Successfully listed all packages`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to list all packages received a ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Failed to list all packages with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
             }
 
-            this.eventEmitter.emit(this.name, { command: 'list:package', program: this.name, msg: `Successfully listed all packages`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to list all packages in the ${this.name} program`, e)
@@ -155,11 +163,11 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: `/crx/packmgr/service/.json/etc/packages/${groupname}/${packagename}` as string, body: form }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully uninstalled ${packagename}`)
+                this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Successfully uninstalled package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
                 console.log(`Failed to uninstall ${packagename} received a ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Failed to uninstalled package ${packagename} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
             }
-
-            this.eventEmitter.emit(this.name, { command: 'uninstall:package', program: this.name, msg: `Successfully uninstalled package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to uninstall package ${packagename} in the ${this.name} program`, e)
@@ -176,11 +184,14 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: `/crx/packmgr/service/.json/etc/packages/${groupname}/${packagename}` as string, body: form }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully deleted ${packagename}`)
+
+                this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Successfully deleted package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
-                console.log(`Failed to deleted ${packagename} received a ${response.status}`)
+                console.log(`Failed to deleted ${packagename} received a ${response.status}  with http error code ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Failed to delete package ${packagename} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
             }
 
-            this.eventEmitter.emit(this.name, { command: 'delete:package', program: this.name, msg: `Successfully deleted package ${packagename}`, state: CommandState.SUCCEEDED } as CommandEvent)
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to delete package ${packagename} in the ${this.name} program`, e)
@@ -200,11 +211,13 @@ export default class CRXCommand extends BaseCommand<BaseEvent> {
         httpclient.post({ serverInfo, path: '/crx/packmgr/service.jsp' as string, body: form, headers: { 'Content-Type': `multipart/form-data` } }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(`Successfully installed ${packagepath}`)
-            } else {
-                console.log(`Failed to install ${packagepath}`)
-            }
 
-            this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Successfully installed package ${packagepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Successfully installed package ${packagepath}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to install ${packagepath} with http error code ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'install:package', program: this.name, msg: `Failed to install package ${packagepath} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            }
 
         }).catch((e: Error) => {
             console.error(`Caught errror ${e.message} when trying to install package ${packagepath} in the ${this.name} program`, e)
