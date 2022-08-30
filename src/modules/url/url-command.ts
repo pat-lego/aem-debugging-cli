@@ -214,6 +214,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemNodeTypes(options)
             })
 
+        program.command('system:jcrresolver')
+            .alias('sjcrr')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemJcrResolver(options)
+            })
+
         program.command('system:jstack-threads')
             .alias('sthreads')
             .option("-o, --open")
@@ -263,6 +270,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.consoleCloudManager(options)
             })
 
+        program.command('console:api-cloud-manager')
+            .alias('cacmgr')
+            .option("-o, --open")
+            .action((options) => {
+                this.consoleAPICloudManager(options)
+            })
+
         program.command('console:developer')
             .alias('cdev')
             .option("-o, --open")
@@ -277,12 +291,27 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.consoleSoftware(options)
             })
 
+        program.command('debug:layout')
+            .alias('dlyt')
+            .argument('<path>', 'The path you want to enable debug layout')
+            .option("-o, --open")
+            .action((path: string, options: any) => {
+                this.debugLayout(path, options)
+            })
+
+        program.command('debug:layout')
+            .alias('dlyt')
+            .argument('<path>', 'The path you want to enable debug layout')
+            .option("-o, --open")
+            .action((path: string, options: any) => {
+                this.debugClientLib(path, options)
+            })
+
         return program
     }
 
     consoleSoftware(options: any) {
         try {
-            const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
                 open(`https://experience.adobe.com/#/downloads`)
             } else {
@@ -300,7 +329,6 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
     consoleDeveloper(options: any) {
         try {
-            const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
                 open(`https://developer.adobe.com/console`)
             } else {
@@ -318,7 +346,6 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
     consoleCloudManager(options: any) {
         try {
-            const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
                 open(`https://my.cloudmanager.adobe.com/`)
             } else {
@@ -331,12 +358,27 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
         }
 
+    }
+
+
+    consoleAPICloudManager(options: any) {
+        try {
+            if (options.open) {
+                open(`https://developer.adobe.com/experience-cloud/cloud-manager/reference/playground/#/api/programs`)
+            } else {
+                console.log(`https://developer.adobe.com/experience-cloud/cloud-manager/reference/playground/#/api/programs`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'console:api-cloud-manager', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'console:api-cloud-manager', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
 
     }
 
     consoleAdmin(options: any) {
         try {
-            const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
                 open(`https://adminconsole.adobe.com/`)
             } else {
@@ -350,6 +392,38 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         }
 
 
+    }
+
+    debugLayout(path: string, options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}${path}?debug=layout`)
+            } else {
+                console.log(`${server.serverUrl}${path}?debug=layout`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'debug:layout', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'debug:layout', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+    }
+
+    debugClientLib(path: string, options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}${path}?debugClientLibs=true`)
+            } else {
+                console.log(`${server.serverUrl}${path}?debugClientLibs=true`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'debug:clientlibs', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'debug:clientlibs', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
     }
 
     systemFSClassLoader(options: any) {
@@ -474,8 +548,22 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'system:nodetypes', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
+    }
 
+    systemJcrResolver(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/jcrresolver`)
+            } else {
+                console.log(`${server.serverUrl}/system/console/jcrresolver`)
+            }
 
+            this.eventEmitter.emit(this.name, { command: 'system:jcrresolver', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:jcrresolver', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
     }
 
     validateClientlibs(options: any) {
