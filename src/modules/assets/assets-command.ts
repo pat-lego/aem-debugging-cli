@@ -18,8 +18,10 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
 
         program.command('list:folder')
             .argument('<folder>', 'The folder path you want to list')
-            .action((folder: string) => {
-                this.listFolder(folder)
+            .addOption(new Option('-l, --limit <limit>', 'The maximum number of assets to retrieve').default('10'))
+            .addOption(new Option('-o, --offset <offset>', 'The offset to use when retrieving assets').default('0'))
+            .action((folder: string, options: any) => {
+                this.listFolder(folder, options)
             })
 
         program.command('create:folder')
@@ -300,10 +302,15 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
 
     }
 
-    listFolder(folder: string) {
+    listFolder(folder: string, options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
-        httpclient.get({ serverInfo: serverInfo, path: `/api/assets/${folder}.json` }).then((response) => {
+        const params: {[key: string]: string} = {
+            limit: options.limit,
+            offset: options.offset
+        }
+
+        httpclient.get({ serverInfo: serverInfo, path: `/api/assets/${folder}.json`, params: params }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
 
