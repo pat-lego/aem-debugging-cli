@@ -46,40 +46,6 @@ export CQ_SERVER_PWD=admin
 export CQ_SERVER_USER=test
 ```
 
-
-# Commands
-
-## Log
-
-Parse and sort the log file to find the slowest request
-
-### Example
-
-`node main.js rlog analyze:file <filePath> [options]`
-
-## URL
-
-Open the URL for a given page in AEM
-
-### Example
-
-Opens the Apache Sling Eventing and Job Handling console.
-
-`node main.js url system:sling-events -o`
-
-## OSGi
-
-Parse and view bundle information in AEM.
-
-
-### Example
-
-Show all active bundles in AEM:
-
-`node main.js bundles parse:state a`
-
-# Installation, Running, and Building 
-
 ## How to Install
 
 `npm install`
