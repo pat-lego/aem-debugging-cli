@@ -16,12 +16,12 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program: Command = new Command(this.name)
 
-        program.command('list:folder')
+        program.command('list:asset')
             .argument('<folder>', 'The folder path you want to list')
             .addOption(new Option('-l, --limit <limit>', 'The maximum number of assets to retrieve').default('10'))
             .addOption(new Option('-o, --offset <offset>', 'The offset to use when retrieving assets').default('0'))
             .action((folder: string, options: any) => {
-                this.listFolder(folder, options)
+                this.listAsset(folder, options)
             })
 
         program.command('create:folder')
@@ -302,7 +302,7 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
 
     }
 
-    listFolder(folder: string, options: any) {
+    listAsset(asset: string, options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const params: {[key: string]: string} = {
@@ -310,21 +310,21 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
             offset: options.offset
         }
 
-        httpclient.get({ serverInfo: serverInfo, path: `/api/assets/${folder}.json`, params: params }).then((response) => {
+        httpclient.get({ serverInfo: serverInfo, path: `/api/assets/${asset}.json`, params: params }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
                 console.log(response.data)
 
-                this.eventEmitter.emit(this.name, { command: 'list:folder', program: this.name, msg: `Successfully listed folder content at path ${folder}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'list:asset', program: this.name, msg: `Successfully listed asset content(s) at path ${asset}`, state: CommandState.SUCCEEDED } as CommandEvent)
             } else {
-                console.log(`Failed to list folder contents at path ${folder} with http error code ${response.status}`)
+                console.log(`Failed to list asset content(s) at path ${asset} with http error code ${response.status}`)
 
-                this.eventEmitter.emit(this.name, { command: 'list:folder', program: this.name, msg: `Failed to list folder contents at path ${folder} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'list:asset', program: this.name, msg: `Failed to list asset content(s) at path ${asset} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
             }
 
         }).catch((e: Error) => {
-            console.error(`Failed to list folder contents at path ${folder} with error  ${e}`)
+            console.error(`Failed to list asset content(s) at path ${asset} with error ${e}`)
 
-            this.eventEmitter.emit(this.name, { command: 'list:folder', program: this.name, msg: `Failed to list folder contents at path ${folder} with error  ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'list:asset', program: this.name, msg: `Failed to list asset content(s) at path ${asset} with error  ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
         })
     }
 
