@@ -5,8 +5,9 @@ import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import FormData from 'form-data'
-export default class DistributionCommand extends BaseCommand<BaseEvent> {
-    name: string = 'distribution'
+export default class DeploymentCommand extends BaseCommand<BaseEvent> {
+
+    name: string = 'deploy'
 
     private retryDelay: number = 6000
 
@@ -23,6 +24,13 @@ export default class DistributionCommand extends BaseCommand<BaseEvent> {
             .argument('<agent>', 'The name of the replication agent')
             .action((instance: string, agent: string) => {
                 this.agentStatus(instance, agent)
+            })
+
+        program.command('distribution:config')
+            .alias('ds')
+            .addArgument(new Argument('<agentid>', 'The distribution agent id'))
+            .action((agentid: string) => {
+                this.distributionConfig(agentid)
             })
 
         program.command('agent:pause')
@@ -72,7 +80,7 @@ export default class DistributionCommand extends BaseCommand<BaseEvent> {
 
         program.command('list:ref')
             .alias('lr')
-            .argument('<path>', 'The path to replicate in which you want to see the references it has to replicate')
+            .argument('<path>', 'The list of items that will need to be replicated with respect to the given resource')
             .action((path: string) => {
                 this.listReferences(path)
             })
@@ -168,7 +176,7 @@ export default class DistributionCommand extends BaseCommand<BaseEvent> {
         const formData = new FormData()
         formData.append('path', `${path}`)
 
-        httpclient.post({ serverInfo: serverInfo, path: `/libs/wcm/core/content/reference.json`, body: formData, headers: {'Content-Type': 'multipart/form-data'}})
+        httpclient.post({ serverInfo: serverInfo, path: `/libs/wcm/core/content/reference.json`, body: formData, headers: { 'Content-Type': 'multipart/form-data' } })
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(response.data)
@@ -320,6 +328,24 @@ export default class DistributionCommand extends BaseCommand<BaseEvent> {
             }).catch((error) => {
                 console.error(`Failed to retrieve the agent status due to the following error ${error}`)
                 this.eventEmitter.emit(this.name, { command: 'agent:status', program: this.name, msg: `Failed to retrieve the agent status due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+            })
+    }
+
+    distributionConfig(agentid: string) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        httpclient.get({ serverInfo: serverInfo, path: `/libs/sling/distribution/settings/agents/${agentid}.json` })
+            .then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    console.log(response.data)
+                    this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Successfully retrieved the agent ${agentid}configurations`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(`Failed to retrieve the agent config for ${agentid}`)
+                    this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Failed to retrieve the agent config for ${agentid} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                }
+            }).catch((error) => {
+                console.error(`Failed to retrieve the agent config for ${agentid} due to the following error ${error}`)
+                this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Failed to retrieve the agent config for ${agentid} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
