@@ -4,6 +4,7 @@ import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
+import FormData from 'form-data'
 
 export default class WorkflowCommand extends BaseCommand<BaseEvent> {
     name: string = 'workflow'
@@ -68,6 +69,22 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             .alias('lw')
             .action(() => {
                 this.listWorkItems()
+            })
+
+        program.command('disable:launcher')
+            .alias('dl')
+            .argument('<name>', 'The name of the launcher to disable')
+            .addOption(new Option('-l, --location <location>', 'The location of the launcher').choices(['conf', 'lib']).default('lib'))
+            .action((name: string, options: any) => {
+                this.disableLauncher(name, options)
+            })
+
+        program.command('enable:launcher')
+            .alias('el')
+            .argument('<name>', 'The name of the launcher to disable')
+            .addOption(new Option('-l, --location <location>', 'The location of the launcher').choices(['conf', 'lib']).default('lib'))
+            .action((name: string, options: any) => {
+                this.enableLauncher(name, options)
             })
 
         return program
@@ -255,6 +272,72 @@ export default class WorkflowCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'terminate:wf', msg: `Failed to terminate workflow due to the following error ${error}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
         })
 
+    }
+
+    disableLauncher(name: string, options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        let path = `global/settings/workflow/launcher/config/${name}`
+        if (options.location === 'conf') {
+            path = `/conf/${path}`
+        } else {
+            path = `/libs/${path}`
+        }
+
+        const formData = new FormData()
+        formData.append('enabled', 'false')
+
+        httpclient.post({
+            serverInfo: serverInfo,
+            path: path,
+            body: formData,
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully disabled launcher ${name}`)
+                this.eventEmitter.emit(this.name, { command: 'disable:launcher', msg: `Successfully disabled launcher ${name}`, program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to disable launcher due to the following http code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'disable:launcher', msg: `Failed to disable launcher due to the following http code ${response.status}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+            }
+
+        }).catch((error) => {
+            console.log(`Failed to disable launcher due to the following error ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'disable:launcher', msg: `Failed to disable launcher due to the following error ${error}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+        })
+    }
+
+    enableLauncher(name: string, options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        let path = `global/settings/workflow/launcher/config/${name}`
+        if (options.location === 'conf') {
+            path = `/conf/${path}`
+        } else {
+            path = `/libs/${path}`
+        }
+
+        const formData = new FormData()
+        formData.append('enabled', 'true')
+
+        httpclient.post({
+            serverInfo: serverInfo,
+            path: path,
+            body: formData,
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`Successfully enabled launcher ${name}`)
+                this.eventEmitter.emit(this.name, { command: 'enable:launcher', msg: `Successfully enabled launcher ${name}`, program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to enable launcher due to the following http code ${response.status}`)
+                this.eventEmitter.emit(this.name, { command: 'enable:launcher', msg: `Failed to enable launcher due to the following http code ${response.status}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+            }
+
+        }).catch((error) => {
+            console.log(`Failed to enable launcher due to the following error ${error}`)
+            this.eventEmitter.emit(this.name, { command: 'enable:launcher', msg: `Failed to enable launcher due to the following error ${error}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
+        })
     }
 
 }
