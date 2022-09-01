@@ -39,6 +39,22 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
                 this.createAsset(name, path, options)
             })
 
+        program.command('create:content-fragment')
+            .argument('<name>', 'The name of the content fragment you want to create')
+            .addOption(new Option('-f, --file <file>', 'The file containing the contents of the content fragment').conflicts('i'))
+            .addOption(new Option('-i, --inline <content>', 'Inline JSON provided to create the content fragment, payload example: "{\"properties\": {\"cq:model\": \"/conf/pat/settings/dam/cfm/models/person\",\"title\": \"Test\",\"description\": \"Test CFM\",\"elements\": {\"firstName\": {\"value\": \"The value of the first name\",\":type\": \"String\"}}}}". Documentation: https://developer.adobe.com/experience-manager/reference-materials/cloud-service/javadoc/assets-api-content-fragments/index.html#/%7BcfParentPath%7D/createContentFragment'))
+            .action((name: string, options: any) => {
+                this.createContentFragment(name, options)
+            })
+
+        program.command('update:content-fragment')
+            .argument('<name>', 'The name of the content fragment you want to create')
+            .addOption(new Option('-f, --file <file>', 'The file containing the contents of the content fragment').conflicts('i'))
+            .addOption(new Option('-i, --inline <content>', 'Inline JSON provided to create the content fragment, payload example: "{\"properties\": {\"cq:model\": \"/conf/pat/settings/dam/cfm/models/person\",\"title\": \"Test\",\"description\": \"Test CFM\",\"elements\": {\"firstName\": {\"value\": \"The value of the first name\",\":type\": \"String\"}}}}". Documentation: https://developer.adobe.com/experience-manager/reference-materials/cloud-service/javadoc/assets-api-content-fragments/index.html#/%7BcfParentPath%7D/updateContentFragment'))
+            .action((name: string, options: any) => {
+                this.updateContentFragment(name, options)
+            })
+
         program.command('update:asset')
             .argument('<name>', 'The name of the asset you want to update')
             .argument('<path>', 'The path to the asset on disk')
@@ -155,6 +171,76 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
             console.error(`Failed to copy asset at path ${oldpath} with error ${e}`)
 
             this.eventEmitter.emit(this.name, { command: 'copy:asset', program: this.name, msg: `Failed to copy asset at path ${oldpath} with error ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
+        })
+    }
+
+    createContentFragment(name: string, options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        let contentFragment = undefined
+        if (options.inline) {
+            contentFragment = options.inline
+        } else if (options.file) {
+            contentFragment = fs.readFileSync(options.file)
+        } else {
+            throw Error('A file or an inline JSON file is required in order to create a content fragment')
+        }
+        
+        if (!contentFragment.includes("cq:model")) {
+            this.eventEmitter.emit(this.name, { command: 'create:content-fragment', program: this.name, msg: `Failed to create content fragment ${name} due to missing cq:model in the JSON body`, state: CommandState.SUCCEEDED } as CommandEvent)
+            throw Error(`Failed to create content fragment ${name} due to missing cq:model in the JSON body`)
+        }
+
+        httpclient.post({ serverInfo: serverInfo, path: `/api/assets/${name}`, body: contentFragment, headers: { 'Content-Type': 'application/json' } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data)
+
+                this.eventEmitter.emit(this.name, { command: 'create:content-fragment', program: this.name, msg: `Successfully created content fragment ${name}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to create content fragment ${name} with http error code ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'create:content-fragment', program: this.name, msg: `Failed to create content fragment ${name} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            }
+
+        }).catch((e: Error) => {
+            console.error(`Failed to create content fragment ${name} with error  ${e}`)
+
+            this.eventEmitter.emit(this.name, { command: 'create:content-fragment', program: this.name, msg: `Failed to create content fragment ${name} with error  ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
+        })
+    }
+
+    updateContentFragment(name: string, options: any) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+       
+        let contentFragment = undefined
+        if (options.inline) {
+            contentFragment = options.inline
+        } else if (options.file) {
+            contentFragment = fs.readFileSync(options.file)
+        } else {
+            throw Error('A file or an inline JSON file is required in order to update a content fragment')
+        }
+        
+        if (!contentFragment.includes("cq:model")) {
+            this.eventEmitter.emit(this.name, { command: 'update:content-fragment', program: this.name, msg: `Failed to update content fragment ${name} due to missing cq:model in the JSON body`, state: CommandState.SUCCEEDED } as CommandEvent)
+            throw Error(`Failed to update content fragment ${name} due to missing cq:model in the JSON body`)
+        }
+
+        httpclient.put({ serverInfo: serverInfo, path: `/api/assets/${name}`, body: contentFragment, headers: { 'Content-Type': 'application/json' } }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data)
+
+                this.eventEmitter.emit(this.name, { command: 'update:content-fragment', program: this.name, msg: `Successfully updated content fragment ${name}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            } else {
+                console.log(`Failed to update content fragment ${name} with http error code ${response.status}`)
+
+                this.eventEmitter.emit(this.name, { command: 'update:content-fragment', program: this.name, msg: `Failed to update content fragment ${name} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            }
+
+        }).catch((e: Error) => {
+            console.error(`Failed to update content fragment ${name} with error  ${e}`)
+
+            this.eventEmitter.emit(this.name, { command: 'update:content-fragment', program: this.name, msg: `Failed to update content fragment ${name} with error  ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
         })
     }
 
@@ -305,7 +391,7 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
     listAsset(asset: string, options: any) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
-        const params: {[key: string]: string} = {
+        const params: { [key: string]: string } = {
             limit: options.limit,
             offset: options.offset
         }
