@@ -5,9 +5,9 @@ import { ServerInfo } from "../config/authentication/server-authentication.js"
 import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import FormData from 'form-data'
-export default class DeploymentCommand extends BaseCommand<BaseEvent> {
+export default class ReplicationCommand extends BaseCommand<BaseEvent> {
 
-    name: string = 'deploy'
+    name: string = 'replication'
 
     private retryDelay: number = 6000
 
@@ -18,7 +18,7 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
     parse(): Command {
         const program = new Command(this.name)
 
-        program.command('replication:status')
+        program.command('agent:status')
             .alias('rs')
             .addArgument(new Argument('<instance>', 'The instance type').choices(['author', 'publish']))
             .argument('<agent>', 'The name of the replication agent')
@@ -26,39 +26,9 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
                 this.agentStatus(instance, agent)
             })
 
-        program.command('distribution:config')
-            .alias('ds')
-            .addArgument(new Argument('<agentid>', 'The distribution agent id'))
-            .action((agentid: string) => {
-                this.distributionConfig(agentid)
-            })
+        
 
-        program.command('distribution:add')
-            .alias('da')
-            .addArgument(new Argument('<agentid>', 'The distribution agent id'))
-            .addArgument(new Argument('<path>', 'The path to add to the agent id'))
-            .action((agentid: string, path: string) => {
-                this.distributionAdd(agentid, path)
-            })
-
-        program.command('distribution:clear-queue')
-            .alias('da')
-            .addArgument(new Argument('<agentid>', 'The distribution agent id'))
-            .addArgument(new Argument('<queue>', 'The name of the queue'))
-            .addOption(new Option('-l, --limit', 'The amount to clear').default('-1'))
-            .action((agentid: string, queue: string, options: any) => {
-                this.distributionClear(agentid, queue, options)
-            })
-
-        program.command('distribution:pull')
-            .alias('dp')
-            .addArgument(new Argument('<agentid>', 'The distribution agent id'))
-            .addArgument(new Argument('<path>', 'The path to pull from the agent id'))
-            .action((agentid: string, path: string) => {
-                this.distributionPull(agentid, path)
-            })
-
-        program.command('replication:pause')
+        program.command('agent:pause')
             .alias('rp')
             .description('Running this command twice will resume the queue')
             .addArgument(new Argument('<instance>', 'The instance type').choices(['author', 'publish']))
@@ -67,7 +37,7 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
                 this.agentPause(instance, agent)
             })
 
-        program.command('replication:clear')
+        program.command('agent:clear')
             .alias('rc')
             .addArgument(new Argument('<instance>', 'The instance type').choices(['author', 'publish']))
             .argument('<agent>', 'The name of the replication agent')
@@ -75,7 +45,7 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
                 this.agentClear(instance, agent)
             })
 
-        program.command('replication:delete')
+        program.command('agent:delete')
             .alias('rd')
             .addArgument(new Argument('<instance>', 'The instance type').choices(['author', 'publish']))
             .argument('<agent>', 'The name of the replication agent')
@@ -83,7 +53,7 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
                 this.agentDelete(instance, agent)
             })
 
-        program.command('replication:create')
+        program.command('agent:create')
             .alias('rcrt')
             .addArgument(new Argument('<instance>', 'The instance type').choices(['author', 'publish']))
             .argument('<agent>', 'The name of the replication agent')
@@ -110,21 +80,21 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
                 this.listReferences(path)
             })
 
-        program.command('replication:activate')
+        program.command('agent:activate')
             .alias('ra')
             .argument('<path>', 'The path to replicate')
             .action((path: string) => {
                 this.agentActivate(path)
             })
 
-        program.command('replication:deactivate')
+        program.command('agent:deactivate')
             .alias('rd')
             .argument('<path>', 'The path to replicate')
             .action((path: string) => {
                 this.agentDeactivate(path)
             })
 
-        program.command('replication:tree-activate')
+        program.command('agent:tree-activate')
             .alias('rta')
             .argument('<path>', 'The path to replicate')
             .addOption(new Option('-d, --deactivate <value>', 'Ignore Deactivate').choices(['true', 'false']).default('false'))
@@ -161,14 +131,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully replicated the content ${path}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:tree-activate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:tree-activate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:tree-activate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:tree-activate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:tree-activate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:tree-activate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -183,14 +153,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully replicated the content ${path}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:deactivate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:deactivate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:deactivate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -227,14 +197,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully replicated the content ${path}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:activate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:activate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:activate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -248,14 +218,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully deleted the agent ${agent} queue`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:delete', program: this.name, msg: `Successfully deleted the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:delete', program: this.name, msg: `Successfully deleted the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to delete the agent ${agent} on the ${instance} instance`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:delete', program: this.name, msg: `Failed to delete the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:delete', program: this.name, msg: `Failed to delete the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to delete the ${agent} queue due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:delete', program: this.name, msg: `Failed to delete the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:delete', program: this.name, msg: `Failed to delete the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -283,14 +253,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully created the agent ${agent} queue`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:create', program: this.name, msg: `Successfully created the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:create', program: this.name, msg: `Successfully created the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to delete the agent ${agent} on the ${instance} instance`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:create', program: this.name, msg: `Failed to create the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:create', program: this.name, msg: `Failed to create the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to create the ${agent} queue due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:create', program: this.name, msg: `Failed to create the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:create', program: this.name, msg: `Failed to create the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -305,14 +275,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully cleared the agent ${agent} queue`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:clear', program: this.name, msg: `Successfully cleared the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:clear', program: this.name, msg: `Successfully cleared the agent ${agent} queue`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to clear the agent ${agent} on the ${instance} instance`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:clear', program: this.name, msg: `Falied to clear the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:clear', program: this.name, msg: `Falied to clear the ${agent} queue with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to clear the ${agent} queue due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:clear', program: this.name, msg: `Failed to clear the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:clear', program: this.name, msg: `Failed to clear the ${agent} queue due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -327,14 +297,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully paused the agent ${agent}`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:pause', program: this.name, msg: `Successfully paused the agent ${agent}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:pause', program: this.name, msg: `Successfully paused the agent ${agent}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to pause the agent ${agent} on the ${instance} instance`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:pause', program: this.name, msg: `Falied to pause the ${agent} agent with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:pause', program: this.name, msg: `Falied to pause the ${agent} agent with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to pause the ${agent} agent due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:pause', program: this.name, msg: `Failed to pause the ${agent} agent due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:pause', program: this.name, msg: `Failed to pause the ${agent} agent due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -345,95 +315,14 @@ export default class DeploymentCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(response.data)
-                    this.eventEmitter.emit(this.name, { command: 'replication:status', program: this.name, msg: 'Successfully retrieved the agent status', state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:status', program: this.name, msg: 'Successfully retrieved the agent status', state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to retrieve the agent status for ${agent} on the ${instance} instance`)
-                    this.eventEmitter.emit(this.name, { command: 'replication:status', program: this.name, msg: `Falied to retrieve the agent status with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'agent:status', program: this.name, msg: `Falied to retrieve the agent status with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to retrieve the agent status due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'replication:status', program: this.name, msg: `Failed to retrieve the agent status due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
-            })
-    }
-
-    distributionConfig(agentid: string) {
-        const serverInfo: ServerInfo = ConfigLoader.get().get()
-
-        httpclient.get({ serverInfo: serverInfo, path: `/libs/sling/distribution/settings/agents/${agentid}.json` })
-            .then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    console.log(response.data)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Successfully retrieved the agent ${agentid}configurations`, state: CommandState.SUCCEEDED } as CommandEvent)
-                } else {
-                    console.log(`Failed to retrieve the agent config for ${agentid}`)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Failed to retrieve the agent config for ${agentid} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
-                }
-            }).catch((error) => {
-                console.error(`Failed to retrieve the agent config for ${agentid} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'distribution:config', program: this.name, msg: `Failed to retrieve the agent config for ${agentid} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
-            })
-    }
-
-    distributionAdd(agentid: string, path: string) {
-        const serverInfo: ServerInfo = ConfigLoader.get().get()
-        const formData = new FormData()
-        formData.append("action", "ADD")
-        formData.append("path", path)
-
-        httpclient.post({ serverInfo: serverInfo, path: `/libs/sling/distribution/services/agents/${agentid}`, body: formData, headers: { 'Content-Type': 'multipart/form-data' } })
-            .then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    console.log(response.data)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:add', program: this.name, msg: `Successfully added path ${path} to the agent ${agentid}`, state: CommandState.SUCCEEDED } as CommandEvent)
-                } else {
-                    console.log(`Failed to add path ${path} to the agent ${agentid}`)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:add', program: this.name, msg: `Failed to add path ${path} to the agent ${agentid} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
-                }
-            }).catch((error) => {
-                console.error(`Failed to add path ${path} to the agent ${agentid} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'distribution:add', program: this.name, msg: `Failed to add path ${path} to the agent ${agentid} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
-            })
-    }
-
-    distributionClear(agentid: string, queue: string, options: any) {
-        const serverInfo: ServerInfo = ConfigLoader.get().get()
-        const formData = new FormData()
-        formData.append("operation", "delete")
-        formData.append("limit", options.limit)
-
-        httpclient.post({ serverInfo: serverInfo, path: `/libs/sling/distribution/services/agents/${agentid}/queues/${queue}`, body: formData, headers: { 'Content-Type': 'multipart/form-data' } })
-            .then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    console.log(`Successfully cleared queue ${queue} on the agent ${agentid}`)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:clear-queue', program: this.name, msg: `Successfully cleared queue ${queue} on the agent ${agentid}`, state: CommandState.SUCCEEDED } as CommandEvent)
-                } else {
-                    console.log(`Failed to clear queue ${queue} on the agent ${agentid}`)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:clear-queue', program: this.name, msg:`Failed to clear queue ${queue} on the agent ${agentid} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
-                }
-            }).catch((error) => {
-                console.error(`Failed to clear queue ${queue} on the agent ${agentid} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'distribution:clear-queue', program: this.name, msg:`Failed to clear queue ${queue} on the agent ${agentid} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
-            })
-    }
-
-    distributionPull(agentid: string, path: string) {
-        const serverInfo: ServerInfo = ConfigLoader.get().get()
-        const formData = new FormData()
-        formData.append("action", "PULL")
-        formData.append("path", path)
-
-        httpclient.post({ serverInfo: serverInfo, path: `/libs/sling/distribution/services/agents/${agentid}`, body: formData, headers: { 'Content-Type': 'multipart/form-data' } })
-            .then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    console.log(response.data)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:pull', program: this.name, msg: `Successfully pulled path ${path} to the agent ${agentid}`, state: CommandState.SUCCEEDED } as CommandEvent)
-                } else {
-                    console.log(`Failed to pull path ${path} to the agent ${agentid}`)
-                    this.eventEmitter.emit(this.name, { command: 'distribution:pull', program: this.name, msg: `Failed to pull path ${path} to the agent ${agentid} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
-                }
-            }).catch((error) => {
-                console.error(`Failed to pull path ${path} to the agent ${agentid} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'distribution:pull', program: this.name, msg: `Failed to pull path ${path} to the agent ${agentid} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'agent:status', program: this.name, msg: `Failed to retrieve the agent status due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
