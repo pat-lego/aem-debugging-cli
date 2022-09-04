@@ -29,11 +29,18 @@ A) Create a local .cqsupport file in the folder that you are currently running t
 
 Example:
 ```
-CQ_SERVER_URL=https://google.com
-CQ_SERVER_ALIAS=alias_1
-CQ_SERVER_AUTH=BASIC
-CQ_SERVER_PWD=test
-CQ_SERVER_USER=test
+{
+    "servers" : [
+        {
+            "serverUrl": "http://localhost:4502",
+            "serverAlias": "localhost",
+            "serverUserName": "admin",
+            "serverPassword": "admin",
+            "serverAuth": "BASIC",
+            "isDefault": true
+        }
+    ]
+}
 ```
 B) Configure environment variables
 
