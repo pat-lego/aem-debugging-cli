@@ -107,6 +107,7 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
     doSet(serverUrl: string, serverAlias: string, username: string, password: string) {
         try {
             ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
+            console.log(`Successfully added the server alias ${serverAlias} to the configs`)
             this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
             console.error(`Failed to set server with the following error ${e}`)
@@ -117,6 +118,7 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
     doSetDefault(serverAlias: string) {
         try {
             ConfigLoader.setDefaultServerHomeDirCQSupport(serverAlias)
+            console.log(`Successfuly made server alias ${serverAlias} the default`)
             this.eventEmitter.emit('config', { command: 'set:default', msg: 'Set Default Server Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
             console.error(`Failed to set default server with the following error ${e}`)
