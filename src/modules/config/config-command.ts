@@ -55,6 +55,14 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             })
 
         program
+            .command('remove:server')
+            .alias('rs')
+            .argument('<serverAlias>', 'A unique name to identify this server')
+            .action((serverAlias: string) => {
+                this.doRemoveAliasFromHome(serverAlias)
+            })
+
+        program
             .command('show:all')
             .alias('sa')
             .action(() => {
@@ -114,7 +122,6 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             console.error(`Failed to set default server with the following error ${e}`)
             this.eventEmitter.emit('config', { command: 'set:default', msg: 'Set Default Server Completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
         }
-
     }
 
     doShowAll() {
@@ -125,7 +132,17 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             console.error(`Failed to set default server with the following error ${e}`)
             this.eventEmitter.emit('config', { command: 'show:all', msg: 'Failed to show all configs', program: 'config', state: CommandState.FAILED } as CommandEvent)
         }
+    }
 
+    doRemoveAliasFromHome(serverAlias: string) {
+        try {
+            ConfigLoader.removeAliasFromHome(serverAlias)
+            console.log(`Successfully removed ${serverAlias} from the home config file`)
+            this.eventEmitter.emit('config', { command: 'remove:alias', msg: 'Removed server alias', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            console.error(`Failed to remove server alias ${serverAlias} with the following error ${e}`)
+            this.eventEmitter.emit('config', { command: 'remove:alias', msg: 'Failed to remove server alias', program: 'config', state: CommandState.FAILED } as CommandEvent)
+        }
     }
 
 }

@@ -164,6 +164,10 @@ export default class ConfigLoader {
         return servers.servers.filter(prop => serverAlias === prop.serverAlias).length > 0
     }
 
+    private static getServerByAlias(servers: PropertiesServers, serverAlias: string): PropertiesConfig {
+        return servers.servers.filter(prop => serverAlias === prop.serverAlias)[0]
+    }
+
     static setHomeDirCQSupport(serverUrl: string, serverAlias: string, username: string, password: string, auth: Authentication): void {
         try {
             new URL(serverUrl)
@@ -211,6 +215,29 @@ export default class ConfigLoader {
                 props.isDefault = false
             }
         }
+
+        fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, JSON.stringify(servers))
+
+    }
+
+    static removeAliasFromHome(serverAlias: string): void {
+
+        const servers: PropertiesServers = JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
+
+        if (!this.hasServerAlias(servers, serverAlias)) {
+            throw Error(`Missing server alias in the ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that the requested server alias is present`)
+        }
+
+        if (this.hasDuplicateServerAlias(servers)) {
+            throw Error(`There are duplicate server aliases in the  ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that this is fixed before trying to set a default server alias`)
+        }
+
+        if (this.getServerByAlias(servers, serverAlias).isDefault) {
+            throw Error(`Cannot delete server ${serverAlias} from the config if it is currently set to be the default, please set another server as the default and then delete this server`)
+        }
+
+        const removedServer = servers.servers.filter(prop => prop.serverAlias !== serverAlias)
+        servers.servers = removedServer
 
         fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, JSON.stringify(servers))
 
