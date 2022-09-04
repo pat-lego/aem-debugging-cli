@@ -84,14 +84,25 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
     }
 
     doSet(serverUrl: string, serverAlias: string, username: string, password: string) {
-        ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
-        this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        try {
+            ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
+            this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            console.error(`Failed to set server with the following error ${e}`)
+            this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
+        }
+
 
     }
 
     doSetDefault(serverAlias: string) {
-        ConfigLoader.setDefaultServerHomeDirCQSupport(serverAlias)
-        this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        try {
+            ConfigLoader.setDefaultServerHomeDirCQSupport(serverAlias)
+            this.eventEmitter.emit('config', { command: 'set:default', msg: 'Set Default Server Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            console.error(`Failed to set default server with the following error ${e}`)
+            this.eventEmitter.emit('config', { command: 'set:default', msg: 'Set Default Server Completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
+        }
 
     }
 
