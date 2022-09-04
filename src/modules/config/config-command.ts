@@ -54,6 +54,13 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
                 this.doSetDefault(serverAlias)
             })
 
+        program
+            .command('show:all')
+            .alias('sa')
+            .action(() => {
+                this.doShowAll()
+            })
+
         return program
     }
 
@@ -70,16 +77,22 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
     }
 
     doView() {
-        const table: Table = new Table({ title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]` })
-        const server: ServerInfo = CredentialLoader.get().get()
-        for (let key of Object.keys(server)) {
-            let value = server[key as keyof ServerInfo]
-            table.addRow({ 'key': key }, { color: 'green' })
-            table.addRow({ 'value': value }, { color: 'yellow' })
+        try {
+            const table: Table = new Table({ title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]` })
+            const server: ServerInfo = CredentialLoader.get().get()
+            for (let key of Object.keys(server)) {
+                let value = server[key as keyof ServerInfo]
+                table.addRow({ 'key': key }, { color: 'green' })
+                table.addRow({ 'value': value }, { color: 'yellow' })
+            }
+
+            table.printTable()
+            this.eventEmitter.emit('config', { command: 'view', msg: 'View completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            console.error(`Failed to view the config table with error ${e}`)
+            this.eventEmitter.emit('config', { command: 'view', msg: 'View completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
         }
 
-        table.printTable()
-        this.eventEmitter.emit('config', { command: 'view', msg: 'View completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
 
     }
 
@@ -91,8 +104,6 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             console.error(`Failed to set server with the following error ${e}`)
             this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
         }
-
-
     }
 
     doSetDefault(serverAlias: string) {
@@ -102,6 +113,17 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
         } catch (e) {
             console.error(`Failed to set default server with the following error ${e}`)
             this.eventEmitter.emit('config', { command: 'set:default', msg: 'Set Default Server Completed', program: 'config', state: CommandState.FAILED } as CommandEvent)
+        }
+
+    }
+
+    doShowAll() {
+        try {
+            console.log(ConfigLoader.getHomeDirAllConfigs())
+            this.eventEmitter.emit('config', { command: 'show:all', msg: 'Showed all configs', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            console.error(`Failed to set default server with the following error ${e}`)
+            this.eventEmitter.emit('config', { command: 'show:all', msg: 'Failed to show all configs', program: 'config', state: CommandState.FAILED } as CommandEvent)
         }
 
     }

@@ -67,6 +67,10 @@ export default class ConfigLoader {
         return server
     }
 
+    static getHomeDirAllConfigs(): PropertiesServers {
+        return JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
+    }
+
     private static getCredentials(input: PropertiesConfig): Credentials {
         if (Authentication.BASIC.valueOf() === input.serverAuth) {
             const creds: Credentials = new BasicCredentials()
@@ -192,9 +196,9 @@ export default class ConfigLoader {
 
         const servers: PropertiesServers = JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
 
-        if (!this.hasServerAlias(servers, serverAlias) ) {
-            throw Error(`Missing server alias in the ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that the requested server alias is present`)  
-        } 
+        if (!this.hasServerAlias(servers, serverAlias)) {
+            throw Error(`Missing server alias in the ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that the requested server alias is present`)
+        }
 
         if (this.hasDuplicateServerAlias(servers)) {
             throw Error(`There are duplicate server aliases in the  ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that this is fixed before trying to set a default server alias`)
