@@ -9,18 +9,23 @@ import { Authentication, Credentials, Server } from "./authentication/server-aut
 import { CONFIG_FILE, CQ_SERVER_URL, CQ_SERVER_ALIAS, CQ_SERVER_USER, CQ_SERVER_PWD, CQ_SERVER_AUTH, CONFIG_TYPE } from "./constants.js"
 
 interface PropertiesConfig {
-    CQ_SERVER_URL: string,
-    CQ_SERVER_ALIAS: string,
-    CQ_SERVER_USER: string,
-    CQ_SERVER_PWD: string,
-    CQ_SERVER_AUTH: Authentication
+    serverUrl: string,
+    serverAlias: string,
+    serverUserName: string,
+    serverPassword: string,
+    serverAuth: Authentication,
+    isDefault?: boolean
+}
+
+interface PropertiesServers {
+    servers: PropertiesConfig[]
 }
 
 export default class ConfigLoader {
 
     static get(): Server {
         if (ConfigLoader.hasLocalCQSupport()) {
-            const result: PropertiesConfig = ConfigLoader.getLocalCQSupport()
+            const result: PropertiesConfig = this.getLocalCQSupport()
             return ConfigLoader.getServer(result)
         }
 
@@ -57,15 +62,15 @@ export default class ConfigLoader {
         const credentials: Credentials = ConfigLoader.getCredentials(input)
 
         const server: Server = new BasicServer()
-        server.set(input.CQ_SERVER_ALIAS, input.CQ_SERVER_URL, credentials)
+        server.set(input.serverAlias, input.serverUrl, credentials)
 
         return server
     }
 
     private static getCredentials(input: PropertiesConfig): Credentials {
-        if (Authentication.BASIC.valueOf() === input.CQ_SERVER_AUTH) {
+        if (Authentication.BASIC.valueOf() === input.serverAuth) {
             const creds: Credentials = new BasicCredentials()
-            creds.set({username: input.CQ_SERVER_USER, password: input.CQ_SERVER_PWD})
+            creds.set({ username: input.serverUserName, password: input.serverPassword })
             return creds
         }
 
@@ -77,20 +82,27 @@ export default class ConfigLoader {
     }
 
     private static getLocalCQSupport(): PropertiesConfig {
-        const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
-        const result: KeyValueObject = propertiesToJson(`${process.cwd()}${path.sep}${CONFIG_FILE}`)
+        const result: PropertiesServers = JSON.parse(fs.readFileSync(`${process.cwd()}${path.sep}${CONFIG_FILE}`, 'utf8'))
 
-        if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
-            properties.CQ_SERVER_ALIAS = result[CQ_SERVER_ALIAS]
-            properties.CQ_SERVER_AUTH = result[CQ_SERVER_AUTH] as Authentication
-            properties.CQ_SERVER_PWD = result[CQ_SERVER_PWD]
-            properties.CQ_SERVER_URL = result[CQ_SERVER_URL]
-            properties.CQ_SERVER_USER = result[CQ_SERVER_USER]
-
-            return properties
+        if (this.hasDuplicateServerAlias(result)) {
+            throw Error('Has duplicate server alias in the server configs')
         }
 
-        throw new Error(`Incomplete ${CONFIG_TYPE.LOCAL.valueOf()} configuration file located please fix the corrupt file`)
+        if (this.hasMoreThenOneDefaultServer(result)) {
+            throw Error('Has multiple default servers in the config please fix this in order to get the proper server config')
+        }
+
+        for (const props of result.servers) {
+            if (props.isDefault && props.isDefault === true) {
+                if (props.serverAlias && props.serverAuth && props.serverPassword && props.serverUrl && props.serverUserName) {
+                    return props
+                } else {
+                    throw Error('Default server is missing one of the mandatory properties, either serverAlias, serverAuth, serverPassword or serverUserName')
+                }
+            }
+        }
+
+        throw Error('Could not locate a default server in the config file')
     }
 
     private static hasHomeDirCQSupport(): boolean {
@@ -98,19 +110,54 @@ export default class ConfigLoader {
     }
 
     private static getHomeDirCQSupport(): PropertiesConfig {
-        const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
-        const result: KeyValueObject = propertiesToJson(`${os.homedir()}${path.sep}${CONFIG_FILE}`)
+        const result: PropertiesServers = JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
 
-        if (result[CQ_SERVER_ALIAS] && result[CQ_SERVER_AUTH] && result[CQ_SERVER_PWD] && result[CQ_SERVER_URL] && result[CQ_SERVER_USER]) {
-            properties.CQ_SERVER_ALIAS = result[CQ_SERVER_ALIAS]
-            properties.CQ_SERVER_AUTH = result[CQ_SERVER_AUTH] as Authentication
-            properties.CQ_SERVER_PWD = result[CQ_SERVER_PWD]
-            properties.CQ_SERVER_URL = result[CQ_SERVER_URL]
-            properties.CQ_SERVER_USER = result[CQ_SERVER_USER]
-            return properties
+        if (this.hasDuplicateServerAlias(result)) {
+            throw Error('Has duplicate server alias in the server configs')
         }
 
-        throw new Error(`Incomplete ${CONFIG_TYPE.HOME.valueOf()} configuration file located please fix the corrupt file`)
+        if (this.hasMoreThenOneDefaultServer(result)) {
+            throw Error('Has multiple default servers in the config please fix this in order to get the proper server config')
+        }
+
+        for (const props of result.servers) {
+            if (props.isDefault && props.isDefault === true) {
+                if (props.serverAlias && props.serverAuth && props.serverPassword && props.serverUrl && props.serverUserName) {
+                    return props
+                } else {
+                    throw Error('Default server is missing one of the mandatory properties, either serverAlias, serverAuth, serverPassword or serverUserName')
+                }
+            }
+        }
+
+        throw Error('Could not locate a default server in the config file')
+    }
+
+    private static hasDuplicateServerAlias(servers: PropertiesServers): boolean {
+        let seen = new Set();
+
+        return servers.servers.some(function (config: PropertiesConfig) {
+            return seen.size === seen.add(config.serverAlias).size;
+        })
+    }
+
+    private static hasMoreThenOneDefaultServer(servers: PropertiesServers): boolean {
+        let hasDefault = false
+        for (const props of servers.servers) {
+            if (props.isDefault && props.isDefault === true) {
+                if (hasDefault === false) {
+                    hasDefault = true
+                } else {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    private static hasServerAlias(servers: PropertiesServers, serverAlias: string): boolean {
+        return servers.servers.filter(prop => serverAlias === prop.serverAlias).length > 0
     }
 
     static setHomeDirCQSupport(serverUrl: string, serverAlias: string, username: string, password: string, auth: Authentication): void {
@@ -120,12 +167,49 @@ export default class ConfigLoader {
             console.log(`Failed to write to the ${CONFIG_FILE} because the URL is not valid`)
         }
 
-        try {
-            const cqsupport = `${CQ_SERVER_ALIAS}=${serverAlias}\n${CQ_SERVER_URL}=${serverUrl}\n${CQ_SERVER_AUTH}=${auth}\n${CQ_SERVER_USER}=${username}\n${CQ_SERVER_PWD}=${password}`
-            fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, cqsupport)
-        } catch (e) {
-            console.error(`Failed to write to the ${CONFIG_FILE} due to the following error \n ${e}`)
+        const servers: PropertiesServers = JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
+
+        if (this.hasDuplicateServerAlias(servers)) {
+            throw Error(`The cqsupport file located at ${os.homedir()}${path.sep}${CONFIG_FILE} has a duplicate server alias in the config, please fix this before adding another server`)
         }
+
+        if (this.hasMoreThenOneDefaultServer(servers)) {
+            throw Error(`The cqsupport file located at ${os.homedir()}${path.sep}${CONFIG_FILE} has a multiple default servers in the config, please fix this before adding another server`)
+        }
+
+        servers.servers.push({
+            serverAlias: serverAlias,
+            serverAuth: auth,
+            serverPassword: password,
+            serverUrl: serverUrl,
+            serverUserName: username
+        })
+
+        fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, JSON.stringify(servers))
+    }
+
+    static setDefaultServerHomeDirCQSupport(serverAlias: string): void {
+
+        const servers: PropertiesServers = JSON.parse(fs.readFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, 'utf8'))
+
+        if (!this.hasServerAlias(servers, serverAlias) ) {
+            throw Error(`Missing server alias in the ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that the requested server alias is present`)  
+        } 
+
+        if (this.hasDuplicateServerAlias(servers)) {
+            throw Error(`There are duplicate server aliases in the  ${os.homedir()}${path.sep}${CONFIG_FILE} file, please make sure that this is fixed before trying to set a default server alias`)
+        }
+
+        for (const props of servers.servers) {
+            if (props.serverAlias === serverAlias) {
+                props.isDefault = true
+            } else {
+                props.isDefault = false
+            }
+        }
+
+        fs.writeFileSync(`${os.homedir()}${path.sep}${CONFIG_FILE}`, JSON.stringify(servers))
+
     }
 
     private static hasEnvVariablesCQSupport(): boolean {
@@ -140,11 +224,11 @@ export default class ConfigLoader {
         const properties: PropertiesConfig = ConfigLoader.getEmptyPropertiesConfig()
 
         if (process.env[CQ_SERVER_ALIAS] && process.env[CQ_SERVER_AUTH] && process.env[CQ_SERVER_PWD] && process.env[CQ_SERVER_URL] && process.env[CQ_SERVER_USER]) {
-            properties.CQ_SERVER_ALIAS = process.env[CQ_SERVER_ALIAS] as string
-            properties.CQ_SERVER_AUTH = process.env[CQ_SERVER_AUTH] as Authentication
-            properties.CQ_SERVER_PWD = process.env[CQ_SERVER_PWD] as string
-            properties.CQ_SERVER_URL = process.env[CQ_SERVER_URL] as string
-            properties.CQ_SERVER_USER = process.env[CQ_SERVER_USER] as string
+            properties.serverAlias = process.env[CQ_SERVER_ALIAS] as string
+            properties.serverAuth = process.env[CQ_SERVER_AUTH] as Authentication
+            properties.serverPassword = process.env[CQ_SERVER_PWD] as string
+            properties.serverUrl = process.env[CQ_SERVER_URL] as string
+            properties.serverUserName = process.env[CQ_SERVER_USER] as string
             return properties
         }
 
@@ -153,11 +237,11 @@ export default class ConfigLoader {
 
     private static getEmptyPropertiesConfig(): PropertiesConfig {
         return {
-            CQ_SERVER_ALIAS: '',
-            CQ_SERVER_AUTH: Authentication.BASIC,
-            CQ_SERVER_PWD: '',
-            CQ_SERVER_URL: '',
-            CQ_SERVER_USER: ''
+            serverAlias: '',
+            serverAuth: Authentication.BASIC,
+            serverPassword: '',
+            serverUrl: '',
+            serverUserName: ''
         }
     }
 }

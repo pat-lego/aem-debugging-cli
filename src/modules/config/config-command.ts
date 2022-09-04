@@ -14,11 +14,11 @@ import BaseEvent, { CommandEvent, CommandState } from "../base-event.js"
 export default class ConfigCommand extends BaseCommand<BaseEvent> {
 
     name: string = 'config'
-    
+
     constructor(baseEvent: BaseEvent) {
         super(baseEvent)
     }
-    
+
     parse(): Command {
         const program = new Command(this.name).alias('c')
         program
@@ -35,7 +35,6 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
                 this.doView()
             })
 
-        //TODO implement a way to setup the .cqsupport file
         program
             .command('set:basic')
             .alias('sb')
@@ -45,6 +44,14 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
             .argument('<password>', 'The username of the user we want to authenticate with')
             .action((serverUrl: string, serverAlias: string, username: string, password: string) => {
                 this.doSet(serverUrl, serverAlias, username, password)
+            })
+
+        program
+            .command('set:default')
+            .alias('sd')
+            .argument('<serverAlias>', 'A unique name to identify this server')
+            .action((serverAlias: string) => {
+                this.doSetDefault(serverAlias)
             })
 
         return program
@@ -58,28 +65,34 @@ export default class ConfigCommand extends BaseCommand<BaseEvent> {
         } else {
             console.log(`The ${homedir}${path.sep}${CONFIG_FILE} file already exists nothing to do`)
         }
-        this.eventEmitter.emit('config', {command: 'init', msg: 'Init completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        
+        this.eventEmitter.emit('config', { command: 'init', msg: 'Init completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+
     }
 
     doView() {
-        const table: Table = new Table({title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]`})
+        const table: Table = new Table({ title: `Credentials are loaded from [${CredentialLoader.source().valueOf().toUpperCase()}]` })
         const server: ServerInfo = CredentialLoader.get().get()
         for (let key of Object.keys(server)) {
             let value = server[key as keyof ServerInfo]
-            table.addRow({'key': key}, {color: 'green'})
-            table.addRow({ 'value': value }, {color: 'yellow'})
+            table.addRow({ 'key': key }, { color: 'green' })
+            table.addRow({ 'value': value }, { color: 'yellow' })
         }
-        
+
         table.printTable()
-        this.eventEmitter.emit('config', {command: 'view', msg: 'View completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        
+        this.eventEmitter.emit('config', { command: 'view', msg: 'View completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+
     }
 
     doSet(serverUrl: string, serverAlias: string, username: string, password: string) {
         ConfigLoader.setHomeDirCQSupport(serverUrl, serverAlias, username, password, Authentication.BASIC)
-        this.eventEmitter.emit('config', {command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED} as CommandEvent)
-        
+        this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+
+    }
+
+    doSetDefault(serverAlias: string) {
+        ConfigLoader.setDefaultServerHomeDirCQSupport(serverAlias)
+        this.eventEmitter.emit('config', { command: 'set:basic', msg: 'Set Credentials Completed', program: 'config', state: CommandState.SUCCEEDED } as CommandEvent)
+
     }
 
 }
