@@ -22,8 +22,11 @@
             "program": "${workspaceFolder}/src/main.ts",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
-                "log",
-                "analyze:rlog-url"
+                "assets",
+                "create:content-fragment",
+                "cfm/pat", 
+                "-i",
+                "{\"properties\": {\"cq:model\": \"/conf/pat/settings/dam/cfm/models/person\",\"title\": \"Test\",\"description\": \"Test CFM\",\"elements\": {\"firstName\": {\"value\": \"The value of the first name\",\":type\": \"String\"}}}}"
             ],
             "console": "integratedTerminal",
         }
