@@ -87,7 +87,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemTagAdmin(options)
             })
 
-        program.command('system:tag-admin')
+        program.command('system:search')
             .alias('srch')
             .option("-o, --open")
             .action((options) => {
@@ -299,8 +299,8 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.debugLayout(path, options)
             })
 
-        program.command('debug:layout')
-            .alias('dlyt')
+        program.command('debug:clientlib')
+            .alias('dclib')
             .argument('<path>', 'The path you want to enable debug layout')
             .option("-o, --open")
             .action((path: string, options: any) => {
@@ -419,9 +419,9 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 console.log(`${server.serverUrl}${path}?debugClientLibs=true`)
             }
 
-            this.eventEmitter.emit(this.name, { command: 'debug:clientlibs', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'debug:clientlib', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
-            this.eventEmitter.emit(this.name, { command: 'debug:clientlibs', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'debug:clientlib', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
     }
