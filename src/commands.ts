@@ -14,6 +14,7 @@ import ReferencesCommand from "./modules/references/references-command.js"
 import PrincipalCommand from "./modules/principal/principal-command.js"
 import SitesCommands from "./modules/sites/sites-command.js"
 import AssetsCommand from "./modules/assets/assets-command.js"
+import ImsCommand from "./modules/ims/ims-command.js"
 
 const baseEvent: BaseEvent = new BaseEvent()
 
@@ -31,6 +32,7 @@ new ReferencesCommand(baseEvent),
 new PrincipalCommand(baseEvent),
 new SitesCommands(baseEvent),
 new AssetsCommand(baseEvent),
-new DistributionCommand(baseEvent)]
+new DistributionCommand(baseEvent),
+new ImsCommand(baseEvent)]
 
 export default Commmands

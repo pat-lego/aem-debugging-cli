@@ -116,7 +116,7 @@ export default class AssetsCommand extends BaseCommand<BaseEvent> {
         }).catch((e: Error) => {
             console.error(`Failed to delete asset at path ${path} with error ${e}`)
 
-            this.eventEmitter.emit(this.name, { command: 'delete:asset', program: this.name, msg: `Failed to delete asset at path ${path} with error ${e}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            this.eventEmitter.emit(this.name, { command: 'delete:asset', program: this.name, msg: `Failed to delete asset at path ${path} with error ${e}`, state: CommandState.FAILED } as CommandEvent)
         })
     }
 

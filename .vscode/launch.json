@@ -18,15 +18,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug Main Config Loader Tests",
+            "name": "Debug Main Commands",
             "program": "${workspaceFolder}/src/main.ts",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
-                "assets",
-                "create:content-fragment",
-                "cfm/pat", 
-                "-i",
-                "{\"properties\": {\"cq:model\": \"/conf/pat/settings/dam/cfm/models/person\",\"title\": \"Test\",\"description\": \"Test CFM\",\"elements\": {\"firstName\": {\"value\": \"The value of the first name\",\":type\": \"String\"}}}}"
+                "ims",
+                "generate:token",
+                "--credentials-file", 
+                "/Users/patriquelegault/Desktop/Untitled-2.json"
             ],
             "console": "integratedTerminal",
         }
