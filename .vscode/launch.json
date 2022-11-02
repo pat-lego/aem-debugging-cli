@@ -22,10 +22,15 @@
             "program": "${workspaceFolder}/src/main.ts",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
-                "ims",
-                "generate:token",
-                "--credentials-file", 
-                "/Users/patriquelegault/Desktop/Untitled-2.json"
+                "code",
+                "github",
+                "search:codebase", 
+                "-o",
+                "Granite",
+                "-t",
+                "saml",
+                "-r",
+                "basic"
             ],
             "console": "integratedTerminal",
         }

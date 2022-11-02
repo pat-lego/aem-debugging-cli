@@ -3,7 +3,7 @@ import { Octokit } from 'octokit'
 import BaseEvent, { CommandEvent, CommandState } from "../../base-event.js"
 import ConfigLoader from "../../config/config-loader.js"
 import CodeCommand from "../code-command.js"
-import open from 'open'
+import jsonpath from 'jsonpath'
 
 export default class GithubCommand extends CodeCommand {
 
@@ -27,6 +27,7 @@ export default class GithubCommand extends CodeCommand {
         .option('-p, --path <path>', 'The path to avoid in the search term, for instance if you want to avoid test folders then you would do -*/test/*')
         .addOption(new Option('-s, --sort-updated <type>', 'Choose to sort by the most recently updated code').choices(['asc', 'desc']))
         .addOption(new Option('-t, --text <text>', 'The search text to use when querying the codebase').makeOptionMandatory())
+        .addOption(new Option('-r, --result <output>', 'Relevant data to print to the console').choices(['raw', 'basic', 'repo', 'owner']).default('raw'))
         .action((options: any) => {
             this.searchCode(options)
         })
@@ -89,12 +90,92 @@ export default class GithubCommand extends CodeCommand {
                 }   
             }
             const response = await octokit.request('GET /api/v3/search/code', search)
-            console.log(response.data)
+            this.printSearchResults(options, response)
             this.eventEmitter.emit(this.name, { command: 'search:codebase', msg: `Successfully queried the codebase`, program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
             
         } catch (e) {
             console.error(e)
             this.eventEmitter.emit(this.name, { command: 'search:codebase', msg: `Failed to query the codebase due to the following error ${e}`, program: this.name, state: CommandState.FAILED } as CommandEvent)
         }
+    }
+
+    printSearchResults(options: any, response: any) {
+        let result: {[key: string]: string} = {}
+        result.total_count = response.data.total_count
+        result.incomplete_results = response.data.incomplete_results
+
+        switch(options.result) {
+            case 'raw':
+                console.log(response.data)
+                break
+            case 'basic':
+                result = this.copyBasic(response, result)
+                console.log(result)
+                break 
+            case 'repo': 
+                result = this.copyBasic(response, result)
+                result = this.copyRepo(response, result)
+                console.log(result)
+                break
+            case 'owner':
+                result = this.copyBasic(response, result)
+                result = this.copyRepo(response, result)
+                result = this.copyOwner(response, result)
+                console.log(result)
+                break
+            default: 
+                console.log(response.data)
+                break
+        }
+    }
+
+    copyBasic(response: any, output: {[key: string]: any}): {[key: string]: string} {
+        const properties: string[] = ['name', 'path', 'html_url', 'git_url'] 
+        output.items = []
+        for (const item of response.data.items) {
+            let i: {[key: string]: string} = {}
+            for (const [key, value] of Object.entries(item)) {
+                if (properties.includes(key)) {
+                    i[key] = value as string
+                }
+            }
+            output.items.push(i)
+        }
+
+        return output
+    }
+
+    copyRepo(response: any, output: {[key: string]: any}): {[key: string]: string} {
+        const properties: string[] = ['id', 'name', 'full_name', 'html_url', 'description'] 
+        const respositories: any[] = jsonpath.query(response.data.items, "$..repository")
+
+        for (let i = 0; i < respositories.length; i++) {
+            let temp: {[key: string]: string} = {}
+            for (const [key, value] of Object.entries(respositories[i])) {
+                if (properties.includes(key)) {
+                    temp[key] = value as string
+                }
+            }
+            output.items[i].repository = temp
+        }
+
+        return output
+    }
+
+    copyOwner(response: any, output: {[key: string]: any}): {[key: string]: string} {
+        const properties: string[] = ['id', 'login', 'type', 'repos_url', 'html_url'] 
+        const owners: any[] = jsonpath.query(response.data.items, "$..owner")
+
+        for (let i = 0; i < owners.length; i++) {
+            let temp: {[key: string]: string} = {}
+            for (const [key, value] of Object.entries(owners[i])) {
+                if (properties.includes(key)) {
+                    temp[key] = value as string
+                }
+            }
+            output.items[i].repository.owner = temp
+        }
+
+        return output
     }
 }
