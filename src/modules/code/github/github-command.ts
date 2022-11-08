@@ -13,7 +13,7 @@ export default class GithubCommand extends CodeCommand {
 
     parse(): Command {
         const program = super.parse()
-        const github = new Command('github') 
+        const github = new Command('github').alias('gh')
 
         github.command('init')
         .addOption(new Option('-b, --base-url <baseUrl>', 'The URL to use when querying the code repository').default('https://api.github.com'))
@@ -28,6 +28,7 @@ export default class GithubCommand extends CodeCommand {
         .addOption(new Option('-s, --sort-updated <type>', 'Choose to sort by the most recently updated code').choices(['asc', 'desc']))
         .addOption(new Option('-t, --text <text>', 'The search text to use when querying the codebase').makeOptionMandatory())
         .addOption(new Option('-r, --result <output>', 'Relevant data to print to the console').choices(['raw', 'basic', 'repo', 'owner']).default('raw'))
+        .addOption(new Option('-c, --content <lines>', 'Include the file exurp in the response').default(10))
         .action((options: any) => {
             this.searchCode(options)
         })
@@ -90,7 +91,8 @@ export default class GithubCommand extends CodeCommand {
                 }   
             }
             const response = await octokit.request('GET /api/v3/search/code', search)
-            this.printSearchResults(options, response)
+            const result = this.getSearchResults(options, response)
+            console.log(result)
             this.eventEmitter.emit(this.name, { command: 'search:codebase', msg: `Successfully queried the codebase`, program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
             
         } catch (e) {
@@ -99,33 +101,28 @@ export default class GithubCommand extends CodeCommand {
         }
     }
 
-    printSearchResults(options: any, response: any) {
+    getSearchResults(options: any, response: any): any {
         let result: {[key: string]: string} = {}
         result.total_count = response.data.total_count
         result.incomplete_results = response.data.incomplete_results
 
         switch(options.result) {
             case 'raw':
-                console.log(response.data)
-                break
+                return response.data
             case 'basic':
                 result = this.copyBasic(response, result)
-                console.log(result)
-                break 
+                return result
             case 'repo': 
                 result = this.copyBasic(response, result)
                 result = this.copyRepo(response, result)
-                console.log(result)
-                break
+                return result
             case 'owner':
                 result = this.copyBasic(response, result)
                 result = this.copyRepo(response, result)
                 result = this.copyOwner(response, result)
-                console.log(result)
-                break
+                return result
             default: 
-                console.log(response.data)
-                break
+                return result
         }
     }
 
@@ -146,7 +143,7 @@ export default class GithubCommand extends CodeCommand {
     }
 
     copyRepo(response: any, output: {[key: string]: any}): {[key: string]: string} {
-        const properties: string[] = ['id', 'name', 'full_name', 'html_url', 'description'] 
+        const properties: string[] = ['id', 'name', 'full_name', 'html_url', 'description', 'contents_url'] 
         const respositories: any[] = jsonpath.query(response.data.items, "$..repository")
 
         for (let i = 0; i < respositories.length; i++) {
