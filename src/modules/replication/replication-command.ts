@@ -26,7 +26,7 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
                 this.agentStatus(instance, agent)
             })
 
-        
+
 
         program.command('agent:pause')
             .alias('rp')
@@ -80,18 +80,25 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
                 this.listReferences(path)
             })
 
-        program.command('agent:activate')
+        program.command('activate:content')
             .alias('ra')
-            .argument('<path>', 'The path to replicate')
+            .argument('<path>', 'The path to replicate activate')
             .action((path: string) => {
-                this.agentActivate(path)
+                this.agentActivateContent(path)
             })
 
-        program.command('agent:deactivate')
-            .alias('rd')
-            .argument('<path>', 'The path to replicate')
+        program.command('delete:content')
+            .alias('rdlt')
+            .argument('<path>', 'The path to replicate delete')
             .action((path: string) => {
-                this.agentDeactivate(path)
+                this.agentDeleteContent(path)
+            })
+
+        program.command('deactivate:content')
+            .alias('rd')
+            .argument('<path>', 'The path to replicate deactivate')
+            .action((path: string) => {
+                this.agentDeactivateContent(path)
             })
 
         program.command('agent:tree-activate')
@@ -142,7 +149,7 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
             })
     }
 
-    agentDeactivate(path: string) {
+    agentDeactivateContent(path: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const formData = new FormData()
@@ -153,14 +160,14 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully replicated the content ${path}`)
-                    this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'deactivate:content', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
-                    this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'deactivate:content', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'agent:deactivate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'deactivate:content', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
@@ -186,7 +193,7 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
             })
     }
 
-    agentActivate(path: string) {
+    agentActivateContent(path: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
         const formData = new FormData()
@@ -197,14 +204,36 @@ export default class ReplicationCommand extends BaseCommand<BaseEvent> {
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     console.log(`Successfully replicated the content ${path}`)
-                    this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'activate:content', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
                 } else {
                     console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
-                    this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                    this.eventEmitter.emit(this.name, { command: 'activate:content', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
                 }
             }).catch((error) => {
                 console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
-                this.eventEmitter.emit(this.name, { command: 'agent:activate', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+                this.eventEmitter.emit(this.name, { command: 'activate:content', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
+            })
+    }
+
+    agentDeleteContent(path: string) {
+        const serverInfo: ServerInfo = ConfigLoader.get().get()
+
+        const formData = new FormData()
+        formData.append('path', `${path}`)
+        formData.append('cmd', 'delete')
+
+        httpclient.post({ serverInfo: serverInfo, path: `/bin/replicate.json`, body: formData, headers: { 'Content-Type': 'multipart/form-data' } })
+            .then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    console.log(`Successfully replicated the content ${path}`)
+                    this.eventEmitter.emit(this.name, { command: 'delete:content', program: this.name, msg: `Successfully replicated the content ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(`Failed to replicate the content ${path}  with http error code ${response.status}`)
+                    this.eventEmitter.emit(this.name, { command: 'delete:content', program: this.name, msg: `Failed to replicate the content ${path} with http error code ${response.status}`, state: CommandState.FAILED } as CommandEvent)
+                }
+            }).catch((error) => {
+                console.error(`Failed to replicate the content ${path} due to the following error ${error}`)
+                this.eventEmitter.emit(this.name, { command: 'delete:content', program: this.name, msg: `Failed to replicate the content ${path} due to the following error ${error}`, state: CommandState.FAILED } as CommandEvent)
             })
     }
 
