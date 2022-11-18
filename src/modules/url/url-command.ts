@@ -256,6 +256,13 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
                 this.systemFSClassLoader(options)
             })
 
+        program.command('system:slingsettings')
+            .alias('sss')
+            .option("-o, --open")
+            .action((options) => {
+                this.systemSlingSettings(options)
+            })
+
         program.command('console:admin')
             .alias('cadm')
             .option("-o, --open")
@@ -438,6 +445,24 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             this.eventEmitter.emit(this.name, { command: 'system:fsclassloader', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
         } catch (e) {
             this.eventEmitter.emit(this.name, { command: 'system:fsclassloader', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
+
+        }
+
+
+    }
+
+    systemSlingSettings(options: any) {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+            if (options.open) {
+                open(`${server.serverUrl}/system/console/status-slingsettings`)
+            } else {
+                console.log(`${server.serverUrl}/system/console/status-slingsettings`)
+            }
+
+            this.eventEmitter.emit(this.name, { command: 'system:slingsettings', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (e) {
+            this.eventEmitter.emit(this.name, { command: 'system:slingsettings', msg: 'Failed to open browser window', program: this.name, state: CommandState.FAILED } as CommandEvent)
 
         }
 
