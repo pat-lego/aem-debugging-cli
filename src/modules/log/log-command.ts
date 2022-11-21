@@ -1,11 +1,15 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
+import { v4 as uuidv4 } from 'uuid'
+import fs from 'fs'
+import FormData from 'form-data'
+import tmp from 'tmp'
 import BaseCommand from '../base-command.js'
 import streamLogs, { ReadLinesInFile, ReadLinesInURL } from '../../utils/streams.js'
 import constants from './constants.js'
 import BaseEvent, { CommandState, CommandEvent } from '../base-event.js'
 import ConfigLoader from '../config/config-loader.js'
-import { Server, ServerInfo } from '../config/authentication/server-authentication.js'
-
+import { ServerInfo } from '../config/authentication/server-authentication.js'
+import httpclient from '../../utils/http.js'
 
 export default class RequestLogCommand extends BaseCommand<BaseEvent> {
     name: string = 'log'
@@ -67,6 +71,18 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.analyzeErrorFile(file, level)
             })
 
+        program
+            .command('create:logger')
+            .alias('cl')
+            .description('This creates a logger that is compatible with AEM 6.x versions')
+            .addOption(new Option('-l, --logger <logger...>', 'The classpaths to log, provide as many as you like followed by a whitespace').makeOptionMandatory(true))
+            .addOption(new Option('-f, --file <file>', 'The file name').makeOptionMandatory(true))
+            .addOption(new Option('-a, --additivity <additivity>', 'Pipe the log output into the error log').choices(['true', 'false']).default('false'))
+            .addOption(new Option('-e, --level <level>', 'The log level message you are looking for INFO | WARN | ERROR').choices(['debug', 'info', 'warn', 'trace']))
+            .action((options: any) => {
+                this.createLogger(options)
+            })
+
         return program
     }
 
@@ -90,8 +106,53 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:error-file', program: this.name } as CommandEvent)
             }
         })
+    }
 
-        
+    createLogger(options: any) {
+        const server: ServerInfo = ConfigLoader.get().get()
+
+        let loggers: Array<String> = options.logger
+        loggers = loggers.map(item => `"${item}"`)
+
+        let logger = `# Configuration created by Apache Sling JCR Installer
+org.apache.sling.commons.log.names=[${loggers.join(', ')}]
+org.apache.sling.commons.log.file="logs/${options.file}"
+org.apache.sling.commons.log.level="${options.level}"
+org.apache.sling.commons.log.additiv="${options.additivity}"`
+
+        tmp.file((error, path, fd, cleanupcallback) => {
+            fs.writeFileSync(path, logger)
+
+            const formData: FormData = new FormData()
+            formData.append(`org.apache.sling.commons.log.LogManager.factory.config~${uuidv4()}.config`, fs.createReadStream(path), {
+                contentType: 'text/plain'
+            })
+
+            httpclient.post({
+                body: formData,
+                serverInfo: server,
+                path: `/apps/system/config`,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    console.log(response.data)
+
+                    this.eventEmitter.emit(this.name, { command: 'create:logger', program: this.name, msg: `Successfully created logger config at path ${path}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                } else {
+                    console.log(`Failed to create logger at path ${path} with http error code ${response.status}`)
+
+                    this.eventEmitter.emit(this.name, { command: 'create:logger', program: this.name, msg: `Failed to create logger at path ${path} with http error code ${response.status}`, state: CommandState.SUCCEEDED } as CommandEvent)
+                }
+            }).catch((error) => {
+                console.error(`Failed to create logger at path ${logger} with error  ${error}`)
+
+                this.eventEmitter.emit(this.name, { command: 'create:logger', program: this.name, msg: `Failed to create logger at path ${path} with error  ${error}`, state: CommandState.SUCCEEDED } as CommandEvent)
+            })
+
+            cleanupcallback()
+
+        })
+
     }
 
     analyzeErrorURL(level: string) {
@@ -113,9 +174,9 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             endFn: () => {
                 this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:error-url', program: this.name } as CommandEvent)
             }
-        }, {headers: { 'Authorization': `Basic ${server.auth}`}})
+        }, { headers: { 'Authorization': `Basic ${server.auth}` } })
 
-        
+
     }
 
     tailCustom(logger: string) {
@@ -148,12 +209,12 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                         hasLapsed = false
                         this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
                     }
-                }, {headers: { 'Authorization': `Basic ${server.auth}`}})
+                }, { headers: { 'Authorization': `Basic ${server.auth}` } })
             }
 
         }, 1000)
 
-        
+
 
     }
 
@@ -187,12 +248,12 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                         hasLapsed = false
                         this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:error', program: this.name } as CommandEvent)
                     }
-                }, {headers: { 'Authorization': `Basic ${server.auth}`}})
+                }, { headers: { 'Authorization': `Basic ${server.auth}` } })
             }
 
         }, 1000)
 
-        
+
 
     }
 
@@ -261,8 +322,8 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             }
         }
 
-        streamLogs.readLinesInURLSync(streamObj, {headers: { 'Authorization': `Basic ${serverInfo.auth}`}})
-        
+        streamLogs.readLinesInURLSync(streamObj, { headers: { 'Authorization': `Basic ${serverInfo.auth}` } })
+
     }
 
     analyzeRlogFile(file: string, options: any) {
@@ -329,7 +390,7 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
         }
 
         streamLogs.readLinesInFileSync(streamObj)
-        
+
     }
 
     sortMap(a: [string, Rlog], b: [string, Rlog], order: string): number {

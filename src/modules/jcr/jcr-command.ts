@@ -50,7 +50,7 @@ export default class JcrCommands extends BaseCommand<BaseEvent> {
             .alias('cc')
             .description("Please see the following documentation https://sling.apache.org/documentation/bundles/manipulating-content-the-slingpostservlet-servlets-post.html#importing-content-structures. Example payload \"{ \"jcr:primaryType\": \"nt:unstructured\", \"p1\" : \"p1Value\", \"child1\" : { \"childProp1\" : true } }\"")
             .argument('<path>', 'The path to import the content')
-            .argument('<name>', 'The namee of the content')
+            .argument('<name>', 'The name of the content')
             .option('-i, --inline <string>', 'The JSON content you want to import')
             .addOption(new Option('-f, --file <path>', 'The file path containing the JSON content').conflicts('inline'))
             .option('-r, --replace', 'Replace existing nodes', false)
