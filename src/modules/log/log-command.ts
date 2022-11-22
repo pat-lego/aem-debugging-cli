@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import FormData from 'form-data'
 import tmp from 'tmp'
+import jsonpath from 'jsonpath'
 import BaseCommand from '../base-command.js'
 import streamLogs, { ReadLinesInFile, ReadLinesInURL } from '../../utils/streams.js'
 import constants from './constants.js'
@@ -83,6 +84,14 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.createLogger(options)
             })
 
+        program
+            .command('view:loggers')
+            .alias('vl')
+            .description('This lists all the loggers that are on your instance')
+            .action(() => {
+                this.viewLoggers()
+            })
+
         return program
     }
 
@@ -106,6 +115,52 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
                 this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'analyze:error-file', program: this.name } as CommandEvent)
             }
         })
+    }
+
+    async viewLoggers() {
+        try {
+            const server: ServerInfo = ConfigLoader.get().get()
+
+            let result: { [key: string]: any } = {}
+
+            const tildyConfigs = await httpclient.get({
+                serverInfo: server,
+                path: '/system/console/configMgr/org.apache.sling.commons.log.LogManager.factory.config~*.json',
+            })
+            const tildyPids = jsonpath.query(tildyConfigs.data, '$..[*].pid')
+            tildyPids.map((item, index) => {
+                const fileName = jsonpath.query(tildyConfigs.data, `$..[${index}].properties["org.apache.sling.commons.log.file"].value`)
+                const classpaths = jsonpath.query(tildyConfigs.data, `$..[${index}].properties["org.apache.sling.commons.log.names"].values`)
+                result[`${item}`] = {
+                    fileName: fileName,
+                    classpaths: classpaths
+                }
+            })
+
+            const dotConfigs = await httpclient.get({
+                serverInfo: server,
+                path: '/system/console/configMgr/org.apache.sling.commons.log.LogManager.factory.config.*.json',
+            })
+            const dotpids = jsonpath.query(dotConfigs.data, '$..[*].pid')
+            dotpids.map((item, index) => {
+                const fileName = jsonpath.query(dotConfigs.data, `$..[${index}].properties["org.apache.sling.commons.log.file"].value`)
+                const classpaths = jsonpath.query(dotConfigs.data, `$..[${index}].properties["org.apache.sling.commons.log.names"].values`)
+
+                result[`${item}`] = {
+                    fileName: fileName,
+                    classpaths: classpaths
+                }
+            })
+
+            console.log(result)
+
+            this.eventEmitter.emit(this.name, { command: 'view:loggers', program: this.name, msg: `Successfully viewed loggers`, state: CommandState.SUCCEEDED } as CommandEvent)
+        } catch (error) {
+            console.error(`Failed to view loggers with error ${error}`)
+
+            this.eventEmitter.emit(this.name, { command: 'view:loggers', program: this.name, msg: `Failed to view loggers with error ${error}`, state: CommandState.SUCCEEDED } as CommandEvent)
+        }
+
     }
 
     createLogger(options: any) {
