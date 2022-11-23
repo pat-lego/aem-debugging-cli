@@ -300,6 +300,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
 
         program.command('debug:layout')
             .alias('dlyt')
+            .description('Adds the debug=layout query parameter to the URL provided. Note make sure to enable WCMDebugFilter in the OSGi configuration manager console for this work, this can found at /system/console/components/com.day.cq.wcm.core.impl.WCMDebugFilter')
             .argument('<path>', 'The path you want to enable debug layout')
             .option("-o, --open")
             .action((path: string, options: any) => {
@@ -404,10 +405,12 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
     debugLayout(path: string, options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
+            const qMark = path.includes('?') ? `${server.serverUrl}${path}&debug=layout` : `${server.serverUrl}${path}?debug=layout`
+
             if (options.open) {
-                open(`${server.serverUrl}${path}?debug=layout`)
+                open(qMark)
             } else {
-                console.log(`${server.serverUrl}${path}?debug=layout`)
+                console.log(qMark)
             }
 
             this.eventEmitter.emit(this.name, { command: 'debug:layout', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
@@ -420,10 +423,11 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
     debugClientLib(path: string, options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
+            const qMark = path.includes('?') ? `${server.serverUrl}${path}&debugClientLibs=true` : `${server.serverUrl}${path}?debugClientLibs=true`
             if (options.open) {
-                open(`${server.serverUrl}${path}?debugClientLibs=true`)
+                open(qMark)
             } else {
-                console.log(`${server.serverUrl}${path}?debugClientLibs=true`)
+                console.log(qMark)
             }
 
             this.eventEmitter.emit(this.name, { command: 'debug:clientlib', msg: 'Opened Browser Window', program: this.name, state: CommandState.SUCCEEDED } as CommandEvent)
