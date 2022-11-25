@@ -48,11 +48,26 @@ export default class RequestLogCommand extends BaseCommand<BaseEvent> {
             })
 
         program
+            .command('cat:error')
+            .alias('ce')
+            .action(() => {
+                this.catError()
+            })
+
+        program
             .command('tail:custom')
             .alias('tc')
             .argument('<logger>', 'The name of the custom logger, this assumes that it is in the logs folder')
             .action((logger) => {
                 this.tailCustom(logger)
+            })
+
+        program
+            .command('cat:custom')
+            .alias('cc')
+            .argument('<logger>', 'The name of the custom logger, this assumes that it is in the logs folder')
+            .action((logger) => {
+                this.catCustom(logger)
             })
 
         program
@@ -234,6 +249,23 @@ org.apache.sling.commons.log.additiv="${options.additivity}"`
 
     }
 
+    catCustom(logger: string) {
+        const server: ServerInfo = ConfigLoader.get().get()
+
+        streamLogs.readLinesInURLSync({
+            url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2F${logger}`,
+            callback: (input: any) => {
+                console.log(input.line)
+            },
+            errorFn: (error: any) => {
+                this.eventEmitter.emit(this.name, { msg: 'Failed to tail custom log file', state: CommandState.FAILED, command: 'tail:custom', program: this.name } as CommandEvent)
+            },
+            endFn: () => {
+                this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:custom', program: this.name } as CommandEvent)
+            }
+        }, { headers: { 'Authorization': `Basic ${server.auth}` } })
+    }
+
     tailCustom(logger: string) {
         const server: ServerInfo = ConfigLoader.get().get()
 
@@ -268,9 +300,23 @@ org.apache.sling.commons.log.additiv="${options.additivity}"`
             }
 
         }, 1000)
+    }
 
+    catError() {
+        const server: ServerInfo = ConfigLoader.get().get()
 
-
+        streamLogs.readLinesInURLSync({
+            url: `${server.serverUrl}/system/console/slinglog/tailer.txt?tail=10000&grep=*&name=%2Flogs%2Ferror.log`,
+            callback: (input: any) => {
+                console.log(input.line)
+            },
+            errorFn: (error: any) => {
+                this.eventEmitter.emit(this.name, { msg: 'Failed to tail error', state: CommandState.FAILED, command: 'tail:error', program: this.name } as CommandEvent)
+            },
+            endFn: () => {
+                this.eventEmitter.emit(this.name, { msg: 'succeeded', state: CommandState.SUCCEEDED, command: 'tail:error', program: this.name } as CommandEvent)
+            }
+        }, { headers: { 'Authorization': `Basic ${server.auth}` } })
     }
 
     tailError() {
@@ -307,9 +353,6 @@ org.apache.sling.commons.log.additiv="${options.additivity}"`
             }
 
         }, 1000)
-
-
-
     }
 
     analyzeRlogURL(options: any) {
