@@ -405,6 +405,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
     debugLayout(path: string, options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
+            if (server.serverUrl.endsWith('/') && path.startsWith('/')) {
+                path = path.substring(1)
+            }
+            
             const qMark = path.includes('?') ? `${server.serverUrl}${path}&debug=layout` : `${server.serverUrl}${path}?debug=layout`
 
             if (options.open) {
@@ -423,6 +427,10 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
     debugClientLib(path: string, options: any) {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
+            if (server.serverUrl.endsWith('/') && path.startsWith('/')) {
+                path = path.substring(1)
+            }
+            
             const qMark = path.includes('?') ? `${server.serverUrl}${path}&debugClientLibs=true` : `${server.serverUrl}${path}?debugClientLibs=true`
             if (options.open) {
                 open(qMark)
