@@ -408,7 +408,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
             if (server.serverUrl.endsWith('/') && path.startsWith('/')) {
                 path = path.substring(1)
             }
-            
+
             const qMark = path.includes('?') ? `${server.serverUrl}${path}&debug=layout` : `${server.serverUrl}${path}?debug=layout`
 
             if (options.open) {
@@ -644,7 +644,7 @@ export default class UrlCommand extends BaseCommand<BaseEvent> {
         try {
             const server: ServerInfo = ConfigLoader.get().get()
             if (options.open) {
-                open(`${server.serverUrl}/libs/granite/ui/content/dumplibs.html`)
+                open(`${server.serverUrl.endsWith('/') ? server.serverUrl.substring(0, server.serverUrl.length - 1) : server.serverUrl}/libs/granite/ui/content/dumplibs.html`)
             } else {
                 console.log(`${server.serverUrl}/libs/granite/ui/content/dumplibs.html`)
             }
