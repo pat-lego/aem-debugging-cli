@@ -7,6 +7,7 @@ import ConfigLoader from "../config/config-loader.js"
 import httpclient from '../../utils/http.js'
 import FormData from 'form-data'
 import fs from 'fs'
+import JcrCommands from '../jcr/jcr-command.js'
 
 export default class SslCommand extends BaseCommand<BaseEvent> {
     name: string = 'ssl'
@@ -32,7 +33,18 @@ export default class SslCommand extends BaseCommand<BaseEvent> {
                 this.enableSsl(keyfile, cn, days, keystorePassword, truststorePassword, httpsHostname, httpsPort)
             })
 
+
+        program.command('disable:https')
+            .action(() => {
+                this.disableSsl()
+            })
         return program
+    }
+
+    async disableSsl() {
+        const jcrCommands = new JcrCommands(this.eventEmitter)
+        jcrCommands.deleteNode('/apps/system/config/com.adobe.granite.jetty.ssl.internal.GraniteSslConnectorFactory.config')
+        jcrCommands.deleteNode('/apps/system/config/org.apache.felix.http.config')
     }
 
     async enableSsl(keyfile: string, cn: string, days: number, keystorePassword: string, truststorePassword: string, httpsHostname: string, httpsPort: number) {
