@@ -15,6 +15,7 @@ import PrincipalCommand from "./modules/principal/principal-command.js"
 import SitesCommands from "./modules/sites/sites-command.js"
 import AssetsCommand from "./modules/assets/assets-command.js"
 import ImsCommand from "./modules/ims/ims-command.js"
+import SslCommand from "./modules/ssl/ssl-command.js"
 import GithubCommand from "./modules/code/github/github-command.js"
 
 const baseEvent: BaseEvent = new BaseEvent()
@@ -35,6 +36,7 @@ new SitesCommands(baseEvent),
 new AssetsCommand(baseEvent),
 new DistributionCommand(baseEvent),
 new ImsCommand(baseEvent),
-new GithubCommand(baseEvent)]
+new GithubCommand(baseEvent),
+new SslCommand(baseEvent)]
 
 export default Commmands
