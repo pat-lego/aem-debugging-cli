@@ -35,6 +35,7 @@ export default class ReferencesCommand extends BaseCommand<BaseEvent> {
     listWcmReferences(path: string) {
         const serverInfo: ServerInfo = ConfigLoader.get().get()
 
+        // Calls com.day.cq.wcm.core.impl.servlets.ReferenceSearchServlet
         httpclient.get({ serverInfo: serverInfo, path: `/bin/wcm/references.json`, params: {path: `${path}`} })
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -55,6 +56,7 @@ export default class ReferencesCommand extends BaseCommand<BaseEvent> {
 
         const form = new FormData()
         form.append("path", path)
+        // Calls com.day.cq.wcm.core.impl.reference.ActivationReferenceSearchServlet
         httpclient.post({ serverInfo: serverInfo, path: `/libs/wcm/core/content/reference.json`, body: form })
             .then((response) => {
                 if (response.status >= 200 && response.status < 300) {
